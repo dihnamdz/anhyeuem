@@ -4,7 +4,7 @@ $(document).ready(function () {
   const resetBtn = $("#resetBtn");
 
   let currentPage = 1;
-  const totalPages = 28;
+  const totalPages = 32;
   let isOpen = false;
 
   envelope.on('click', function () {
@@ -72,3 +72,4 @@ resetBtn.addEventListener("click", function () {
     resetBtn.style.display = "none";
     playAudioOnce();
 });
+
