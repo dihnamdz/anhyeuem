@@ -8,20 +8,31 @@ $(document).ready(function () {
     const audio = $("#sound")[0];
   
     let currentPage = 1;
-    const totalPages = 31; // đúng với số page trong HTML
+    const totalPages = 31;
     let isOpen = false;
     let hasPlayed = false;
   
-    const correctPassword = "emyeuanh"; // 👉 chỉnh mật khẩu ở đây
+    const correctPassword = "emyeuanh"; // 🔐 Mật khẩu
+  
+    // 🎶 Danh sách bài nhạc
+    const playlist = [
+        "music/1.mp3",
+      "./style/IxkUNOlUqqWjHD9b.mp3",
+      "music/2.mp3",
+      "music/3.mp3",
+      "music/4.mp3",
+      "music/5.mp3",
+      "music/6.mp3",
+      "music/7.mp3"
+    ];
+    let currentTrack = 0;
   
     // Khi bấm xác nhận mật khẩu
     submitPass.on("click", function () {
       const entered = passwordInput.val().trim();
       if (entered === correctPassword) {
         passMessage.text("");
-        passwordOverlay.fadeOut(500); // ẩn hộp nhập mật khẩu
-  
-        // Mở thư & phát nhạc
+        passwordOverlay.fadeOut(500);
         setTimeout(() => {
           envelope.removeClass("close").addClass("open");
           isOpen = true;
@@ -29,12 +40,12 @@ $(document).ready(function () {
           resetBtn.show();
         }, 400);
       } else {
-        passMessage.text("❌ Sai mật khẩu rồi, Phương Thuỳ hay ai đấyyy!");
+        passMessage.text("❌ Sai mật khẩu rồi, có phải Phương Thuỳ không mà đòi xemmm!");
         passwordInput.val("");
       }
     });
   
-    // Khi click phong bì => chuyển trang tiếp theo
+    // Khi click phong bì => lật trang tiếp
     envelope.on("click", function () {
       if (isOpen) nextLyric();
     });
@@ -47,7 +58,8 @@ $(document).ready(function () {
         currentPage = 1;
         updateActivePage();
         resetBtn.hide();
-        passwordOverlay.fadeIn(300); // hiện lại hộp mật khẩu
+        passwordOverlay.fadeIn(300);
+        stopAudio();
       }, 600);
     });
   
@@ -61,14 +73,30 @@ $(document).ready(function () {
       $("#page" + currentPage).addClass("active");
     }
   
+    // 🎧 Phát nhạc & tự động chuyển bài
     function playAudioOnce() {
       if (!hasPlayed) {
-        audio.play().then(() => {
-          hasPlayed = true;
-        }).catch((e) => {
-          console.log("Không thể phát nhạc:", e);
-        });
+        playTrack(currentTrack);
+        hasPlayed = true;
       }
+    }
+  
+    function playTrack(index) {
+      audio.src = playlist[index];
+      audio.play().catch((e) => console.log("Không thể phát nhạc:", e));
+  
+      // Khi bài hiện tại kết thúc => phát bài tiếp theo
+      audio.onended = function () {
+        currentTrack = (currentTrack + 1) % playlist.length;
+        playTrack(currentTrack);
+      };
+    }
+  
+    function stopAudio() {
+      audio.pause();
+      audio.currentTime = 0;
+      hasPlayed = false;
+      currentTrack = 0;
     }
   });
   
