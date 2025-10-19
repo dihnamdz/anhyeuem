@@ -18,12 +18,9 @@ $(document).ready(function () {
     const playlist = [
         "1.mp3",
       "./style/IxkUNOlUqqWjHD9b.mp3",
-      "music/2.mp3",
-      "music/3.mp3",
-      "music/4.mp3",
-      "music/5.mp3",
-      "music/6.mp3",
-      "music/7.mp3"
+      "2.mp3",
+      "3.mp3",
+      "4.mp3"
     ];
     let currentTrack = 0;
   
@@ -100,4 +97,5 @@ $(document).ready(function () {
     }
   });
   
+
 
