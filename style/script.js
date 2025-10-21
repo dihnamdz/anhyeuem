@@ -16,6 +16,9 @@ $(document).ready(function () {
   
     // 🎶 Danh sách bài nhạc
     const playlist = [
+        "5.mp3",
+        "6.mp3",
+        "7.mp3",
         "1.mp3",
       "./style/IxkUNOlUqqWjHD9b.mp3",
       "2.mp3",
@@ -97,5 +100,6 @@ $(document).ready(function () {
     }
   });
   
+
 
 
