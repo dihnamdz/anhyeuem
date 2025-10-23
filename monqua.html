@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>🎁 Quà thưởng cho em</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
+  <style>
+    :root{ --rose:#d63384; --bg1:#fff0f5; --bg2:#ffe4ec; }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:"Segoe UI",system-ui,Arial,sans-serif;
+      background:linear-gradient(180deg,var(--bg1),var(--bg2));
+      min-height:100vh; overflow:hidden; color:#8a4760;
+    }
+    .wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+    .card{
+      position:relative; max-width:800px; width:min(92vw,800px);
+      background:rgba(255,255,255,.85); border:1.5px solid #ffd6e8;
+      border-radius:18px; padding:22px 20px; text-align:center;
+      box-shadow:0 16px 40px rgba(255,92,138,.18); backdrop-filter:blur(6px);
+      z-index:2;
+    }
+    h1{margin:8px 0 6px; color:var(--rose)}
+    p.msg{margin:10px auto; line-height:1.6; font-size:18px}
+    .btns{margin-top:14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+    button,a.btn{
+      background:var(--rose); color:#fff; border:none; border-radius:12px;
+      padding:10px 16px; font-weight:800; cursor:pointer; text-decoration:none;
+      box-shadow:0 6px 16px rgba(255,92,138,.18);
+    }
+    button:hover,a.btn:hover{filter:brightness(1.05)}
+    /* Hoa rơi */
+    .petal{position:fixed; top:-40px; width:14px; height:14px; pointer-events:none; z-index:1;
+      background:radial-gradient(circle at 30% 30%,#ffd1e1 0%,#ff9fc5 60%,#ff7aa7 100%);
+      border-radius:60% 40% 60% 40%; opacity:.9; transform:rotate(45deg);
+      animation: fall linear forwards, sway ease-in-out infinite;
+    }
+    @keyframes fall { to{ transform:translateY(110vh) rotate(405deg); opacity:.2 } }
+    @keyframes sway { 0%{ margin-left:0 } 50%{ margin-left:12px } 100%{ margin-left:0 } }
+    /* Nút bật nhạc khi bị chặn autoplay */
+    .music-tip{margin-top:8px; font-size:14px; opacity:.8}
+  </style>
+</head>
+<body>
+  <audio id="bgm" src="music/3.mp3" loop></audio>
+
+  <div class="wrap">
+    <div class="card">
+      <h1>🎁 Quà thưởng sau 4 Pomodoro</h1>
+      <p class="msg">
+        Em vừa hoàn thành một “ca học” 2 tiếng cực xịn! Tự thưởng cho mình
+        vài phút thật thư giãn nha: hít sâu, thả lỏng vai, uống nước và
+        nghe nhạc nhẹ. Anh tự hào về em lắm 💖
+      </p>
+      <div class="btns">
+        <a class="btn" href="study.html">⬅️ Quay lại học cùng anh</a>
+        <button id="playMusic">🎵 Bật nhạc</button>
+      </div>
+      <div class="music-tip" id="musicTip" hidden>Nhấn “Bật nhạc” nếu trình duyệt chặn tự phát.</div>
+    </div>
+  </div>
+
+  <script>
+    // Hoa rơi
+    function spawnPetal(){
+      const p = document.createElement('div');
+      p.className = 'petal';
+      const left = Math.random() * 100;
+      p.style.left = left + 'vw';
+      const dur = 8 + Math.random()*8;
+      const delay = Math.random()*4;
+      p.style.animationDuration = dur + 's, ' + (3 + Math.random()*2) + 's';
+      p.style.animationDelay = delay + 's, 0s';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), (dur + delay) * 1000 + 500);
+    }
+    setInterval(spawnPetal, 300);
+    for(let i=0;i<20;i++) spawnPetal();
+
+    // Nhạc
+    const bgm = document.getElementById('bgm');
+    const tip = document.getElementById('musicTip');
+    const btn = document.getElementById('playMusic');
+    function tryPlay(){
+      bgm.volume = 0.9;
+      bgm.play().then(()=>{ tip.hidden = true; }).catch(()=>{ tip.hidden = false; });
+    }
+    document.addEventListener('DOMContentLoaded', tryPlay);
+    btn.addEventListener('click', tryPlay);
+  </script>
+</body>
+</html>

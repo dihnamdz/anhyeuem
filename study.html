@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎧 Học cùng anh</title>
+  <link rel="stylesheet" href="./style/style.css" />
+  <link rel="stylesheet" href="./style/study.css" />
+  <style>
+    :root {
+      --study-bg: linear-gradient(180deg, #fff0f5 0%, #ffe0eb 100%);
+      --break-bg: linear-gradient(180deg, #e5e0ff 0%, #d0bfff 100%);
+      --long-bg: linear-gradient(180deg, #e0f7fa 0%, #b2ebf2 100%);
+    }
+    body {
+      background: var(--study-bg);
+      font-family: "Segoe UI", sans-serif;
+      text-align: center;
+      color: #d63384;
+      transition: background 1.5s ease;
+      overflow-y: auto; /* was: overflow: hidden; */
+    }
+    h2 {
+      margin-top: 40px;
+      font-size: 2rem;
+      animation: fadeIn 1s ease;
+    }
+    #dashboard {
+      background: rgba(255,255,255,0.7);
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(255,182,193,0.6);
+      width: 320px;
+      margin: 30px auto;
+      padding: 20px;
+      backdrop-filter: blur(5px);
+      animation: fadeIn 1.2s ease;
+    }
+    #timer {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #ff5c8a;
+      margin-bottom: 10px;
+    }
+    #quote {
+      font-size: 1.1rem;
+      color: #ff77a5;
+      min-height: 50px;
+    }
+    #info {
+      font-size: 1rem;
+      color: #b83b78;
+      margin: 10px 0;
+    }
+    button {
+      background: #ff9fbf;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 16px;
+      color: white;
+      font-size: 15px;
+      margin: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #ff77a5;
+      transform: scale(1.05);
+    }
+    .heart {
+      position: absolute;
+      bottom: -20px;
+      color: #ff7aa2;
+      font-size: 20px;
+      animation: floatUp 6s linear infinite;
+      opacity: 0.8;
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-100vh) scale(0.6); opacity: 0; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 240, 245, 0.9);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 10;
+      animation: fadeIn 1s ease;
+      text-align: center;
+      color: #d63384;
+    }
+
+    /* 🎧 Mini lofi playlist panel */
+    #lofiPanel{
+      position:fixed; left:16px; bottom:16px; width:230px; z-index:12;
+      background:rgba(255,255,255,0.9); border:1px solid #ffd6e8; border-radius:12px;
+      box-shadow:0 8px 24px rgba(255,92,138,.18); padding:10px;
+      backdrop-filter: blur(6px);
+    }
+    #lofiPanel .lofi-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;color:#d63384;font-weight:700}
+    #lofiPanel ul{list-style:none;margin:0;padding:0;max-height:150px;overflow:auto}
+    #lofiPanel li{display:flex;gap:6px;align-items:center;padding:6px 8px;border-radius:8px;cursor:pointer;color:#8a4760}
+    #lofiPanel li:hover{background:#ffe4ec}
+    #lofiPanel li.playing{background:#ffebf3;color:#d63384;font-weight:700}
+    #lofiPanel .lofi-controls{display:flex;gap:6px;justify-content:center;margin-top:8px}
+    #lofiPanel .lofi-controls button{background:#ff9fbf;border:none;border-radius:8px;padding:6px 10px;color:#fff;cursor:pointer}
+    #lofiPanel .lofi-controls button:hover{filter:brightness(1.05)}
+    #lofiPanel .toggle{display:flex;align-items:center;gap:6px;font-weight:600;color:#8a4760}
+  </style>
+</head>
+<body>
+  <h2>🎧 Học cùng anh nào, cô gái chăm chỉ 💕</h2>
+
+  <!-- New layout wrapper -->
+  <div id="appWrap">
+    <div id="dashboard">
+      <div id="modeBar" class="modeBar" role="tablist" aria-label="Chế độ">
+        <button id="modePomodoro" class="modeBtn active" role="tab" aria-selected="true">Pomodoro</button>
+        <button id="modeShort" class="modeBtn" role="tab" aria-selected="false">Nghỉ ngắn 5’</button>
+        <button id="modeLong" class="modeBtn" role="tab" aria-selected="false">Nghỉ dài 15’-30’ </button>
+      </div>
+      <div id="timer">25:00</div>
+      <div id="info">🍅 Pomodoro: <span id="pomoCount">0</span></div>
+      <div id="progress" class="hearts" aria-label="Tiến độ 4 Pomodoro">
+        <span class="heart" data-i="1">❤</span>
+        <span class="heart" data-i="2">❤</span>
+        <span class="heart" data-i="3">❤</span>
+        <span class="heart" data-i="4">❤</span>
+      </div>
+      <div id="quote">Nhấn “Bắt đầu học” để cùng anh học nhé 🌸</div>
+      <div>
+        <button id="startBtn">▶️ Bắt đầu</button>
+        <button id="resetBtn">🔁 Reset</button>
+        <button id="skipBtn">⏭️ Bỏ qua</button>
+      </div>
+    </div>
+
+    <!-- New right-side panel -->
+    <div class="sidePanel">
+      <h3>📊 Thống kê</h3>
+      <div id="stats">
+        <div>Tổng phút học:</div><div><span id="statMins">0</span> phút</div>
+        <div>Pomodoro đã hoàn thành:</div><div><span id="statPomos">0</span></div>
+        <div>Nhiệm vụ đã xong:</div><div><span id="statTasks">0</span></div>
+      </div>
+      <!-- THÊM: nút reset thống kê -->
+      <div style="margin:8px 0;">
+        <button id="btnResetStats">🧹 Reset thống kê</button>
+      </div>
+
+      <h3>📝 Kế hoạch</h3>
+      <!-- THÊM: nút xoá tất cả nhiệm vụ -->
+      <div style="margin:8px 0;">
+        <button id="btnResetTasks">🗑️ Xoá tất cả nhiệm vụ</button>
+      </div>
+      <form id="taskForm">
+        <input id="taskTitle" type="text" placeholder="Tên nhiệm vụ" required />
+        <input id="taskMins" type="number" min="1" step="1" placeholder="Phút" required />
+        <button type="submit">Thêm</button>
+      </form>
+      <ul id="taskList"></ul>
+    </div>
+  </div>
+
+  <a href="index.html"><button>⬅️ Quay lại thư</button></a>
+
+  <!-- Nhạc -->
+  <audio id="musicStudy" src="music/1.mp3" preload="auto" loop></audio>
+  <audio id="musicBreak" src="music/3.mp3" preload="auto" loop></audio>
+  <audio id="alertSound" src="music/alert.mp3" preload="auto" loop></audio>
+
+  <!-- Overlay khi hết giờ -->
+  <div id="overlay">
+    <h2 id="overlayTitle">🌸 Giỏi lắm, cô gái của anh 💖</h2>
+    <p id="overlayQuote"></p>
+    <button id="nextBtn">Tiếp tục</button>
+  </div>
+
+  <!-- 🎧 Mini lofi playlist -->
+  <div id="lofiPanel" aria-label="Playlist lofi">
+    <div class="lofi-head">
+      <span>🎧 Lofi list</span>
+      <label class="toggle">
+        <input type="checkbox" id="lofiToggle" />
+        <span>Bật</span>
+      </label>
+    </div>
+    <ul id="lofiList"></ul>
+    <div class="lofi-controls">
+      <button id="lofiPrev" title="Bài trước">⏮️</button>
+      <button id="lofiPlayPause" title="Phát/Tạm dừng">⏯️</button>
+      <button id="lofiNext" title="Bài sau">⏭️</button>
+    </div>
+  </div>
+  <audio id="lofiAudio" preload="metadata"></audio>
+
+  <!-- Inline script replacing external file to avoid conflicts -->
+  <script>
+  (function(){
+    const $ = s => document.querySelector(s);
+    const $$ = s => Array.from(document.querySelectorAll(s));
+
+    // Elements
+    const timerEl = $("#timer");
+    const pomoCountEl = $("#pomoCount");
+    const quoteEl = $("#quote");
+    const overlay = $("#overlay");
+    const overlayTitle = $("#overlayTitle");
+    const overlayQuote = $("#overlayQuote");
+    const nextBtn = $("#nextBtn");
+    const startBtn = $("#startBtn");
+    const resetBtn = $("#resetBtn");
+    const skipBtn = $("#skipBtn");
+    const modeBtns = {
+      pomo: $("#modePomodoro"),
+      short: $("#modeShort"),
+      long: $("#modeLong")
+    };
+    const statMins = $("#statMins");
+    const statPomos = $("#statPomos");
+    const statTasks = $("#statTasks");
+    const taskForm = $("#taskForm");
+    const taskTitle = $("#taskTitle");
+    const taskMins = $("#taskMins");
+    const taskList = $("#taskList");
+    const studyMusic = $("#musicStudy");
+    const breakMusic = $("#musicBreak");
+    // THÊM: alert audio
+    const alertSound = $("#alertSound");
+    // THÊM:
+    const btnResetStats = $("#btnResetStats");
+
+    /* 🎧 LOFI MINI-PLAYER */
+    const LOFI_TRACKS = [
+      "music/1.mp3","music/2.mp3","music/3.mp3","music/4.mp3",
+      "music/5.mp3","music/6.mp3","music/7.mp3"
+    ];
+    const lofiAudio = $("#lofiAudio");
+    const lofiToggle = $("#lofiToggle");
+    const lofiList = $("#lofiList");
+    const lofiPrev = $("#lofiPrev");
+    const lofiNext = $("#lofiNext");
+    const lofiPlayPause = $("#lofiPlayPause");
+
+    let lofiIndex = loadLofiIndex();
+    let lofiEnabled = loadLofiEnabled();
+
+    function loadLofiEnabled(){ try { return localStorage.getItem("lofi.enabled")==="1"; } catch { return false; } }
+    function saveLofiEnabled(v){ localStorage.setItem("lofi.enabled", v ? "1" : "0"); }
+    function loadLofiIndex(){
+      try {
+        const n = parseInt(localStorage.getItem("lofi.index")||"0",10);
+        return isNaN(n) ? 0 : Math.min(Math.max(n,0), LOFI_TRACKS.length-1);
+      } catch { return 0; }
+    }
+    function saveLofiIndex(){ localStorage.setItem("lofi.index", String(lofiIndex)); }
+
+    function renderLofiList(){
+      lofiList.innerHTML = LOFI_TRACKS.map((_,i) => `
+        <li data-i="${i}" class="${i===lofiIndex ? 'playing':''}">Bài ${i+1}</li>
+      `).join("");
+      $$("#lofiList li").forEach(li => {
+        li.addEventListener("click", () => {
+          lofiIndex = parseInt(li.dataset.i,10);
+          saveLofiIndex();
+          if (!lofiEnabled) setLofiEnabled(true);
+          playLofi(true);
+        });
+      });
+      updateLofiUI();
+    }
+    function updateLofiUI(){
+      $$("#lofiList li").forEach((li,i) => {
+        li.classList.toggle("playing", i===lofiIndex && !lofiAudio.paused && !lofiAudio.ended);
+      });
+      lofiPlayPause.textContent = lofiAudio.paused ? "▶️" : "⏸️";
+      lofiToggle.checked = lofiEnabled;
+    }
+    function setLofiEnabled(flag){
+      lofiEnabled = flag; saveLofiEnabled(flag);
+      if (!flag) pauseLofi();
+      else if (running) playLofi(false);
+      updateLofiUI();
+    }
+    function ensureSrc(){
+      const src = LOFI_TRACKS[lofiIndex];
+      if (!lofiAudio.src || !lofiAudio.src.endsWith(src)) {
+        lofiAudio.src = src;
+      }
+    }
+    function playLofi(forceChange){
+      if (forceChange) { lofiAudio.src = LOFI_TRACKS[lofiIndex]; }
+      else ensureSrc();
+      lofiAudio.play().catch(()=>{ /* silently ignore */ });
+      updateLofiUI();
+    }
+    function pauseLofi(){
+      try { lofiAudio.pause(); } catch {}
+      updateLofiUI();
+    }
+    function nextLofi(){
+      lofiIndex = (lofiIndex + 1) % LOFI_TRACKS.length;
+      saveLofiIndex();
+      playLofi(true);
+    }
+    function prevLofi(){
+      lofiIndex = (lofiIndex - 1 + LOFI_TRACKS.length) % LOFI_TRACKS.length;
+      saveLofiIndex();
+      playLofi(true);
+    }
+
+    lofiToggle.addEventListener("change", () => setLofiEnabled(lofiToggle.checked));
+    lofiPlayPause.addEventListener("click", () => {
+      if (lofiAudio.paused) { setLofiEnabled(true); playLofi(false); }
+      else pauseLofi();
+    });
+    lofiPrev.addEventListener("click", prevLofi);
+    lofiNext.addEventListener("click", nextLofi);
+    lofiAudio.addEventListener("ended", nextLofi);
+
+    renderLofiList();
+
+    // Config
+    const MODES = { pomo: 25*60, short: 5*60, long: 30*60 };
+    const MODE_BG = { pomo: "var(--study-bg)", short: "var(--break-bg)", long: "var(--long-bg)" };
+    const quotesStudy = [
+      "Anh đang học cùng em đó, cố lên nha 💪",
+      "Mỗi phút học là một bước gần hơn tới thành công cùng anh! 💖",
+      "Em học chăm ghê, xứng đáng nghỉ một chút để chiến đấu tiếp💕",
+      "Anh tin em làm được, anh và Pthuy cùng tập trung nhé 🌸",
+      "Học hôm nay để mai mình cùng nhau rực rỡ, hạnh phúc nào em iu ✨",
+      "Em giỏi lắm, anh tự hào về em bé Pthuy 🥰",
+      "Từng chút một cũng là tiến bộ, Pthuy nhé 🌱",
+      "Anh ở đây cùng em, cô gái chăm chỉ của anh 💝"
+    ];
+    const quotesShortBreak = [
+      "💜 Nghỉ 5 phút nhẹ nhàng nha, em yêu 🌸",
+      "Uống nước đi em, anh pha trà cho em nè hehe ☕💕",
+      "Anh chờ em 5 phút thôi đó, nghỉ tí rồi học tiếp ạa 😆",
+      "Hít thở sâu, thả lỏng vai nào cô gái của anh 😌💖",
+      "Giãn cơ nhẹ một chút nha, đừng ngồi lâu quá 🧘‍♀️",
+      "5 phút ngắn ngủi, nghỉ xong quay lại học liền nha 🌷",
+
+      "Nhắm mắt nghỉ tí cho mắt sáng nhé, cô gái xinh 👀✨"
+    ];
+    const quotesLongBreak = [
+      "💙 Nghỉ dài 15-30 phút thoaiii, em xứng đáng lắm! 🎉",
+      "Thư giãn sâu đi em, lấy lại năng lượng nào 🌷💕",
+      "Anh tự hào về em lắm, cô gái nhỏ kiên trì 💖",
+      "10 phút này là của em, làm gì cũng được nha 🥰",
+      "Đi dạo quanh nhà, vận động chút đi em ơi 🚶‍♀️💫",
+      "Anh nghĩ em nên nằm nghỉ 15 phút này, mệt rồi đó 😴💝",
+      "Nhắn tin cho anh nói chuyện 15 phút này cũng được nha 📞💕",
+      "Nghe nhạc thư giãn, để đầu óc nghỉ ngơi em bé nhé 🎵✨"
+    ];
+
+    // State
+    let mode = "pomo";
+    let timeLeft = MODES[mode];
+    let timerId = null;
+    let running = false;
+    let lastTick = 0;
+    let activeTaskId = null;
+    let stats = loadStats();
+    let tasks = loadTasks();
+    let pendingNextMode = null;
+
+    // Init
+    applyModeUI();
+    setTimeLeft(MODES.pomo);
+    updateTimerUI();
+    updateStatsUI();
+    renderTasks();
+    updateHearts();
+    quoteEl.textContent = "Nhấn “Bắt đầu học” để cùng anh học nhé 🌸";
+
+    // Events
+    modeBtns.pomo.addEventListener("click", () => switchMode("pomo"));
+    modeBtns.short.addEventListener("click", () => switchMode("short"));
+    modeBtns.long.addEventListener("click", () => switchMode("long"));
+
+    startBtn.addEventListener("click", toggleStart);
+    resetBtn.addEventListener("click", resetTimer);
+    skipBtn.addEventListener("click", () => endSession(true));
+
+    // THÊM: reset thống kê
+    btnResetStats.addEventListener("click", () => {
+      if (!confirm("Reset toàn bộ thống kê?")) return;
+      stats.totalStudySec = 0;
+      stats.totalPomos = 0;
+      saveStats();
+      updateStatsUI();
+      updateHearts();
+    });
+
+    nextBtn.addEventListener("click", () => {
+      try { alertSound.pause(); alertSound.currentTime = 0; } catch {}
+      overlay.style.display = "none";
+      if (pendingNextMode) switchMode(pendingNextMode);
+      startTimer();
+    });
+
+    taskForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const t = taskTitle.value.trim();
+      const m = parseInt(taskMins.value, 10);
+      if (!t || isNaN(m) || m <= 0) return;
+      tasks.push({ id: cryptoId(), title: t, minsTotal: m, minsRemaining: m, done: false });
+      saveTasks();
+      renderTasks();
+      taskForm.reset();
+    });
+
+    // THÊM: xử lý reset thống kê
+    $("#btnResetStats").addEventListener("click", () => {
+      if (!confirm("Reset toàn bộ thống kê?")) return;
+      stats = { totalStudySec: 0, totalPomos: 0 };
+      saveStats();
+      updateStatsUI();
+      updateHearts();
+    });
+
+    // THÊM: xử lý xoá tất cả nhiệm vụ
+    $("#btnResetTasks").addEventListener("click", () => {
+      if (!confirm("Xoá tất cả nhiệm vụ?")) return;
+      tasks = [];
+      activeTaskId = null;
+      saveTasks();
+      saveActiveTask();
+      renderTasks();
+    });
+
+    // THÊM: phát chuông báo
+    function playAlert(){
+      try {
+        // đảm bảo các nhạc khác đã dừng
+        studyMusic.pause(); breakMusic.pause();
+        pauseLofi?.();
+        alertSound.currentTime = 0;
+        alertSound.volume = 1;
+        alertSound.play().catch(() => {
+          // fallback nếu bị chặn autoplay
+          document.body.addEventListener("click", () => {
+            alertSound.currentTime = 0; alertSound.play().catch(()=>{});
+          }, { once: true });
+        });
+      } catch {}
+    }
+
+    function endSession(skipped){
+      pauseTimer();
+      const endedMode = mode;
+
+      // phát chuông
+      playAlert();
+
+      if (endedMode === "pomo" && !skipped){
+        stats.totalPomos += 1;
+        saveStats();
+        updateHearts();
+      }
+      updateStatsUI();
+
+      overlay.style.display = "flex";
+      if (endedMode === "pomo"){
+        overlayTitle.textContent = "🌸 Giỏi lắm, cô gái của anh 💖";
+        const isLong = (!skipped && stats.totalPomos % 4 === 0);
+        pendingNextMode = isLong ? "long" : "short";
+        overlayQuote.textContent = isLong ? randomOf(quotesLongBreak) : randomOf(quotesShortBreak);
+
+        // THÊM: mở trang quà khi đủ 4 Pomodoro
+        if (isLong) setTimeout(() => openReward(), 600); // chờ chuông 1 nhịp
+      } else {
+        overlayTitle.textContent = "⏰ Hết giờ nghỉ rồi em ơi";
+        overlayQuote.textContent = "Cùng quay lại học tiếp nhé, anh tin em! 💪✨";
+        pendingNextMode = "pomo";
+      }
+      setTimeLeft(MODES[pendingNextMode]);
+      applyModeUI(pendingNextMode);
+      refreshAudio();
+    }
+
+    function openReward(){
+      try { alertSound.pause(); alertSound.currentTime = 0; } catch {}
+      window.location.href = "monqua.html";
+    }
+
+    function switchMode(m){
+      pauseTimer();
+      mode = m;
+      setTimeLeft(MODES[m]);
+      applyModeUI();
+      updateTimerUI();
+      refreshAudio();
+      // Update quote based on mode
+      if (m === "pomo") {
+        quoteEl.textContent = randomOf(quotesStudy);
+      } else if (m === "short") {
+        quoteEl.textContent = randomOf(quotesShortBreak);
+      } else {
+        quoteEl.textContent = randomOf(quotesLongBreak);
+      }
+    }
+    function toggleStart(){
+      running ? pauseTimer() : startTimer();
+    }
+    function startTimer(){
+      if (running) return;
+      running = true;
+      lastTick = Date.now();
+      timerId = setInterval(tick, 1000);
+      startBtn.textContent = "⏸️ Tạm dừng";
+      
+      // Hiện câu động viên khi bắt đầu
+      if (mode === "pomo") {
+        quoteEl.textContent = randomOf(quotesStudy);
+      } else if (mode === "short") {
+        quoteEl.textContent = randomOf(quotesShortBreak);
+      } else {
+        quoteEl.textContent = randomOf(quotesLongBreak);
+      }
+      
+      // Nếu lofi bật, tự động phát khi bắt đầu học
+      if (lofiEnabled) playLofi(false);
+      refreshAudio();
+    }
+    function pauseTimer(){
+      if (!running) return;
+      running = false;
+      clearInterval(timerId);
+      timerId = null;
+      startBtn.textContent = "▶️ Bắt đầu";
+      // Tạm dừng lofi khi dừng học
+      if (lofiEnabled) pauseLofi();
+      refreshAudio();
+    }
+    function resetTimer(){
+      pauseTimer();
+      setTimeLeft(MODES[mode]);
+      updateTimerUI();
+    }
+    function tick(){
+      const now = Date.now();
+      const delta = Math.max(1, Math.floor((now - lastTick)/1000));
+      lastTick = now;
+      timeLeft = Math.max(0, timeLeft - delta);
+
+      if (mode === "pomo"){
+        stats.totalStudySec += delta;
+        if (activeTaskId){
+          const t = tasks.find(x => x.id === activeTaskId);
+          if (t && !t.done){
+            t.minsRemaining = Math.max(0, t.minsRemaining - delta/60);
+            if (t.minsRemaining <= 0.0001){
+              t.minsRemaining = 0;
+              t.done = true;
+              activeTaskId = null;
+            }
+            saveTasks();
+            renderTasks();
+          }
+        }
+        saveStats();
+      }
+
+      updateTimerUI();
+      if (timeLeft <= 0){
+        endSession(false);
+      }
+    }
+    function setTimeLeft(s){
+      timeLeft = s;
+    }
+    function applyModeUI(){
+      Object.keys(modeBtns).forEach(k => {
+        modeBtns[k].classList.toggle("active", k === mode);
+        modeBtns[k].setAttribute("aria-selected", k === mode ? "true" : "false");
+      });
+      document.body.style.background = MODE_BG[mode];
+    }
+    function updateTimerUI(){
+      timerEl.textContent = format(timeLeft);
+    }
+    function updateStatsUI(){
+      pomoCountEl.textContent = stats.totalPomos;
+      statMins.textContent = Math.floor(stats.totalStudySec / 60);
+      statPomos.textContent = stats.totalPomos;
+      statTasks.textContent = tasks.filter(t => t.done).length;
+    }
+    function updateHearts(){
+      const cycle = stats.totalPomos % 4;
+      $$("#progress .heart").forEach((h, i) => {
+        h.classList.toggle("filled", i < cycle);
+      });
+    }
+    function refreshAudio(){
+      try {
+        // Khi bật lofi, không phát nhạc study/break để tránh trùng
+        if (lofiEnabled){
+          studyMusic.pause(); breakMusic.pause();
+          return;
+        }
+        studyMusic.pause(); breakMusic.pause();
+        if (running){
+          if (mode === "pomo") studyMusic.play().catch(()=>{});
+          else breakMusic.play().catch(()=>{});
+        }
+      } catch(e){}
+    }
+
+    function renderTasks(){
+      taskList.innerHTML = "";
+      tasks.forEach(t => {
+        const li = document.createElement("li");
+        li.className = "task" + (t.done ? " done" : "") + (t.id === activeTaskId && !t.done ? " working" : "");
+        const remain = Math.max(0, Math.ceil(t.minsRemaining));
+        li.innerHTML = `
+          <div class="meta">
+            <span class="title">${escapeHtml(t.title)}</span>
+            <span>•</span>
+            <span>Còn ${remain}/${Math.ceil(t.minsTotal)} phút</span>
+          </div>
+          <div class="actions">
+            <button class="tbtn start" ${t.done ? "disabled" : ""}>Thực hiện</button>
+            <button class="tbtn complete">${t.done ? "Đã xong" : "Hoàn thành"}</button>
+            <button class="tbtn add">+ phút</button>
+            <!-- THÊM: nút xoá -->
+            <button class="tbtn reset del">Xoá</button>
+          </div>
+        `;
+        const [btnStart, btnDone, btnAdd, btnDel] = li.querySelectorAll("button");
+        btnStart.addEventListener("click", () => {
+          if (t.done) return;
+          activeTaskId = t.id;
+          saveActiveTask();
+          if (mode !== "pomo") switchMode("pomo");
+          renderTasks();
+          startTimer();
+        });
+        btnDone.addEventListener("click", () => {
+          t.done = true;
+          t.minsRemaining = 0;
+          if (activeTaskId === t.id) activeTaskId = null;
+          saveActiveTask(); saveTasks(); renderTasks(); updateStatsUI();
+        });
+        btnAdd.addEventListener("click", () => {
+          const add = parseInt(prompt("Thêm bao nhiêu phút cho nhiệm vụ?", "5") || "0", 10);
+          if (!isNaN(add) && add > 0){
+            t.minsTotal += add;
+            t.minsRemaining += add;
+            if (t.done && t.minsRemaining > 0) t.done = false;
+            saveTasks(); renderTasks();
+          }
+        });
+        // THÊM: xử lý xoá nhiệm vụ
+        btnDel.addEventListener("click", () => {
+          if (!confirm("Xoá nhiệm vụ này?")) return;
+          const idx = tasks.findIndex(x => x.id === t.id);
+          if (idx >= 0) tasks.splice(idx, 1);
+          if (activeTaskId === t.id) {
+            activeTaskId = null;
+            saveActiveTask();
+          }
+          saveTasks();
+          renderTasks();
+          updateStatsUI();
+        });
+
+        taskList.appendChild(li);
+      });
+      updateStatsUI();
+    }
+
+    // Storage helpers
+    function loadStats(){
+      try { return JSON.parse(localStorage.getItem("study.stats")) || { totalStudySec: 0, totalPomos: 0 }; }
+      catch { return { totalStudySec: 0, totalPomos: 0 }; }
+    }
+    function saveStats(){
+      localStorage.setItem("study.stats", JSON.stringify(stats));
+    }
+    function loadTasks(){
+      try { return JSON.parse(localStorage.getItem("study.tasks")) || []; }
+      catch { return []; }
+    }
+    function saveTasks(){
+      localStorage.setItem("study.tasks", JSON.stringify(tasks));
+    }
+    function saveActiveTask(){
+      if (activeTaskId) localStorage.setItem("study.activeTaskId", activeTaskId);
+      else localStorage.removeItem("study.activeTaskId");
+    }
+
+    // Utils
+    function format(s){
+      const m = Math.floor(s/60).toString().padStart(2,"0");
+      const ss = Math.floor(s%60).toString().padStart(2,"0");
+      return `${m}:${ss}`;
+    }
+    function randomOf(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+    function cryptoId(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
+    function escapeHtml(s){ return s.replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+  })();
+  </script>
+  <!-- removed: <script src="./style/study.js"></script> -->
+</body>
+</html>
