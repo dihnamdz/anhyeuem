@@ -94,6 +94,18 @@
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="./style/script.js"></script>
+   <!-- Hiện bonusZone sau khi thư mở -->
+  <script>
+    const observer = new MutationObserver(() => {
+      if ($("#envelope").hasClass("open")) {
+        setTimeout(() => $("#bonusZone").fadeIn(800), 1400);
+      } else {
+        $("#bonusZone").hide();
+      }
+    });
+    observer.observe(document.getElementById("envelope"), { attributes: true });
+  </script>
 </body>
 </html>
+
 
