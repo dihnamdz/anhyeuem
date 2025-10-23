@@ -1,0 +1,164 @@
+:root{
+  --pink:#ff6fa3;
+  --pink-2:#ff99c2;
+  --rose:#d63384;
+  --ink:#5a2b3a;
+  --bg:#fff0f5;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  font-family:"Segoe UI",system-ui,Arial,sans-serif;
+  color:var(--ink);
+  background: var(--study-bg, linear-gradient(135deg,#fff0f5,#ffe4ec));
+}
+
+/* Đẩy các trái tim trang trí xuống dưới, không chắn click */
+body .heart{
+  pointer-events: none;   /* không chặn thao tác */
+  z-index: 0;             /* nằm dưới */
+}
+
+#dashboard{
+  background: rgba(255,255,255,.7);
+  border-radius:16px;
+  box-shadow: 0 10px 30px rgba(255,92,138,.18);
+  width:min(420px,92vw);
+  margin:28px auto;
+  padding:20px 18px;
+  backdrop-filter: blur(6px);
+  border:1.5px solid #ffd6e8;
+}
+
+/* layout wrapper for left (timer) + right (panel) */
+#appWrap{
+  display:flex; gap:24px; justify-content:center; align-items:stretch;
+  padding:0 8px; flex-wrap:wrap;
+  position: relative;
+  z-index: 2;
+}
+
+.modeBar{
+  display:flex;gap:8px;justify-content:center;align-items:center;margin-bottom:12px;
+  background: rgba(255,240,245,0.65);
+  border: 1px solid #ffd6e8;border-radius: 12px;padding: 8px;
+}
+.modeBtn{
+  background:#fff;color:var(--rose);border:none;border-radius:10px;padding:8px 14px;
+  font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(255,92,138,.08);
+  transition:background .2s,color .2s,transform .1s;
+}
+.modeBtn:hover{background:#ffb3c1;color:#fff}
+.modeBtn.active{background:var(--rose);color:#fff;border:2px solid #ffb3c1;box-shadow:0 6px 16px rgba(255,92,138,.2)}
+
+#timer{
+  font-size:56px;font-variant-numeric:tabular-nums;letter-spacing:2px;
+  color:#ff5c8a;text-shadow:0 2px 0 #ffd9e8;margin:8px 0 6px;text-align:center;
+}
+
+#info{color:#b83b78;text-align:center;margin:4px 0 8px}
+
+.hearts{display:flex;gap:8px;justify-content:center;margin:6px 0 12px}
+.heart{font-size:26px;color:#ff9bc4;opacity:.45;transform:scale(.9);transition:all .2s}
+.heart.filled{color:#ff3f86;opacity:1;transform:scale(1)}
+
+/* ensure progress hearts are not affected by global .heart floating rule in HTML */
+#progress .heart{ position: static; bottom: auto; animation: none; }
+
+#quote{
+  font-weight:700;color:#8a4760;text-align:center;
+  background:linear-gradient(90deg,#fff6fa,#ffe4ec);
+  border-radius:12px;padding:10px 14px;margin:8px 0;min-height:50px;
+  box-shadow:0 2px 8px rgba(255,92,138,.08);
+}
+
+.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.controls button{
+  background: var(--rose); color:#fff; border:none; border-radius:12px;
+  padding:10px 16px; font-weight:800; cursor:pointer;
+  box-shadow:0 6px 16px rgba(255,92,138,.18); transition:transform .05s,filter .2s;
+}
+.controls button:hover{filter:brightness(1.05)}
+.controls button:active{transform:translateY(1px)}
+
+/* Right side panel */
+.sidePanel{
+  background: rgba(255,255,255,.7);
+  border-radius:16px;
+  box-shadow: 0 10px 30px rgba(255,92,138,.18);
+  width:min(420px,92vw);
+  padding:16px;
+  border:1.5px solid #ffd6e8;
+  backdrop-filter: blur(6px);
+}
+.sidePanel h3{margin:6px 0 10px;color:var(--rose)}
+
+#stats{
+  display:grid; grid-template-columns:auto 1fr; column-gap:10px; row-gap:6px;
+  background:linear-gradient(90deg,#fff6fa,#ffe4ec); border-radius:12px; padding:10px 12px;
+  margin-bottom:12px; box-shadow:0 2px 8px rgba(255,92,138,.08);
+}
+
+/* Task form */
+#taskForm{display:flex; gap:8px; margin:8px 0 10px}
+#taskForm input{
+  flex:1; background:#fff; border:1px solid #ffd6e8; border-radius:10px; padding:8px 10px;
+}
+#taskForm input#taskMins{flex:0 0 92px}
+#taskForm button{
+  background: var(--rose); color:#fff; border:none; border-radius:10px; padding:8px 12px; font-weight:700; cursor:pointer;
+}
+
+/* Task list */ 
+#taskList{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px}
+.task{
+  display:grid; grid-template-columns:1fr auto; align-items:center; gap:8px;
+  background:#fff; border:1px solid #ffd6e8; border-radius:12px; padding:10px 12px;
+}
+.task .meta{display:flex; gap:10px; align-items:center; color:#8a4760}
+.task .title{font-weight:700; color:#8a4760}
+.task.done .title{text-decoration:line-through; opacity:.7}
+.task.working{ border-color:#5cb85c; box-shadow:0 0 0 2px rgba(92,184,92,.15) inset }
+.task .actions{display:flex; gap:6px}
+.tbtn{
+  background:#ff9fbf; color:#fff; border:none; border-radius:10px; padding:6px 10px; font-weight:700; cursor:pointer;
+}
+.tbtn.start{background:#5cb85c}
+.tbtn.complete{background:#6f42c1}
+.tbtn.reset{background:#ff9f43}
+.tbtn.add{ background:#17a2b8 }
+
+/* Floating hearts class used by JS */
+.heart-floater{
+  position:fixed; left:0; right:0; bottom:-20px; pointer-events:none;
+  height:0; overflow:visible;
+}
+.fh{position:absolute; bottom:-20px; color:#ff7aa2; opacity:.8; animation:floatUp 6s linear infinite}
+@keyframes floatUp{
+  0%{transform:translateY(0) scale(1); opacity:1}
+  100%{transform:translateY(-100vh) scale(.6); opacity:0}
+}
+
+@media (max-width:420px){
+  #timer{font-size:48px}
+}
+
+/* === Harmonize two panels (override) === */
+#dashboard, .sidePanel{
+  width: auto;                     /* override width:min(...) */
+  flex: 1 1 480px;                 /* mỗi bảng ~1/2, tự co giãn */
+  max-width: 560px;
+  margin: 20px 0;                  /* bỏ auto centering */
+  display: flex;
+  flex-direction: column;          /* nội dung xếp dọc, fill height */
+}
+
+/* Kéo nội dung chính lên trên lớp trái tim */
+#lofiPanel, h2, #overlay{
+  position: relative;
+  z-index: 2;
+}
+
+/* Đảm bảo overlay luôn nổi hẳn lên */
+#overlay{ z-index: 1000; }
