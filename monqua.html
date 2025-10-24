@@ -43,32 +43,27 @@
   </style>
 </head>
 <body>
-  <audio id="bgm" src="3.mp3" loop></audio>
+  <audio id="bgm" src="music/3.mp3" loop></audio>
+  <!-- THÊM: chuông báo hết giờ nghỉ -->
+  <audio id="alert" src="music/alert.mp3" preload="auto"></audio>
 
   <div class="wrap">
     <div class="card">
-      <h1>🎁 Quà thưởng sau 4 Pomodoro</h1>
+      <h1>🎁 GIỎI LẮM CÔ GÁI CỦA ANH </h1>
       <p class="msg">
-      Pthuy của anhhh giỏi quáaaa, thế là vừa vừa kết thúc một buổi học dài và chăm chỉ rồi đó — 4 pomodoro không phải là ít đâu nha 🕰️
-      Anh biết điều đó không hề dễ , nhưng em đã làm rất tốt rùi, và anh thật sự tự hào về em. 💖
-
-      Giờ thì tạm gác lại sách vở một chút đi he.
-      Hít một hơi thật sâu, thả lỏng vai, duỗi tay chân,
-      rồi nhắm mắt lại vài giây để cảm nhận cơ thể mình đang được nghỉ ngơi và tưởng tượng anh bên cạnh.... 🌿
-      
-      Bật một bản nhạc em thích, uống vài ngụm nước mát,
-      và để tâm hồn trôi trong những giai điệu thật êm. 🎶
-      
-      Em xứng đáng với những phút giây thư giãn này,
-      vì anh biết em đã cố gắng không chỉ bằng trí óc,
-      mà còn bằng cả sự kiên định và nhiệt huyết trong tim. 💫
-      
-      Học hành chăm chỉ như vậy, em giỏi lắm đó — cô gái nhỏ của anh.
-      Anh chỉ muốn nói một điều:
-      Tự hào, thương, và luôn ở đây — Dinh Nam đang dõi dõi theo từng bước cố gắng của em bé Pthuy. ❤️
+        Em vừa hoàn thành một “ca học” siêu đỉnh rồi đó — 4 pomodoro liên tiếp, đáng nể luôn 😘 Anh biết em đã tập trung hết mình, nên giờ là lúc cho phép bản thân chậm lại một chút nha. Hít sâu một hơi, thả lỏng vai, nhắm mắt vài giây, để tâm trí được nghỉ ngơi sau chặng dài cố gắng. Uống một ngụm nước mát, bật bản nhạc em thích, để giai điệu nhẹ nhàng chạm vào tim như phần thưởng xứng đáng cho cô gái chăm chỉ nhất của anh 💞 Anh thật sự tự hào về em — không chỉ vì em học giỏi, mà vì cách em kiên trì, nỗ lực và luôn giữ trái tim dịu dàng giữa mọi áp lực. Em xứng đáng với từng giây phút thư giãn này, xứng đáng được yêu thương, được trân trọng. Giỏi lắm, cô gái nhỏ của anh 🌷💖
       </p>
+
+      <!-- THÊM: đồng hồ nghỉ dài -->
+      <div id="longTimerBox" style="margin-top:10px;">
+        <div style="font-weight:800;color:#d63384;">⏳ Nghỉ dài còn:</div>
+        <div id="longTime" style="font-size:28px;font-weight:900;color:#8a4760;">30:00</div>
+        <div id="longMsg" class="music-tip" hidden>⏰ Hết giờ nghỉ rồi! Quay lại học nhé 💪</div>
+      </div>
+
       <div class="btns">
-        <a class="btn" href="study.html">⬅️ Quay lại học cùng anh</a>
+        <!-- đổi link để tự bắt đầu Pomodoro mới khi quay lại -->
+        <a class="btn" href="study.html?start=1">⬅️ Quay lại học cùng anh</a>
         <button id="playMusic">🎵 Bật nhạc</button>
       </div>
       <div class="music-tip" id="musicTip" hidden>Nhấn “Bật nhạc” nếu trình duyệt chặn tự phát.</div>
@@ -92,7 +87,7 @@
     setInterval(spawnPetal, 300);
     for(let i=0;i<20;i++) spawnPetal();
 
-    // Nhạc
+    // Nhạc nền
     const bgm = document.getElementById('bgm');
     const tip = document.getElementById('musicTip');
     const btn = document.getElementById('playMusic');
@@ -102,8 +97,47 @@
     }
     document.addEventListener('DOMContentLoaded', tryPlay);
     btn.addEventListener('click', tryPlay);
+
+    // THÊM: Đồng hồ nghỉ dài 30 phút
+    const longEl = document.getElementById('longTime');
+    const longMsg = document.getElementById('longMsg');
+    const alertEl = document.getElementById('alert');
+    const LONG_SEC = 30 * 60;
+
+    // mốc kết thúc để chống trôi khi tab ẩn
+    let endTs = Date.now() + LONG_SEC * 1000;
+    let longId = null;
+
+    function fmt(s){
+      const m = String(Math.floor(s/60)).padStart(2,'0');
+      const ss = String(Math.floor(s%60)).padStart(2,'0');
+      return m + ':' + ss;
+    }
+    function tickLong(){
+      const remain = Math.max(0, Math.round((endTs - Date.now())/1000));
+      longEl.textContent = fmt(remain);
+      if (remain <= 0){
+        clearInterval(longId); longId = null;
+        // báo chuông + thông báo
+        try {
+          alertEl.currentTime = 0;
+          alertEl.play().catch(()=>{});
+        } catch {}
+        try {
+          if ('Notification' in window && Notification.permission === 'granted'){
+            new Notification('Hết giờ nghỉ ⏰', { body: 'Quay lại học thôi nào! 💪' });
+          } else if ('Notification' in window && Notification.permission === 'default'){
+            Notification.requestPermission().catch(()=>{});
+          }
+        } catch {}
+        longMsg.hidden = false;
+        document.title = '⏰ Hết giờ nghỉ — quay lại học!';
+      }
+    }
+    // chạy timer
+    longId = setInterval(tickLong, 250);
+    tickLong();
+    document.addEventListener('visibilitychange', () => { if (longId) tickLong(); });
   </script>
 </body>
-
 </html>
-
