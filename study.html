@@ -144,7 +144,7 @@
 
     <!-- New right-side panel -->
     <div class="sidePanel">
-      <h3>📊 Thống kê</h3>
+      <h3>📊 Thống kê hôm nay của người iu Đình Nam</h3>
       <div id="stats">
         <div>Tổng phút học:</div><div><span id="statMins">0</span> phút</div>
         <div>Pomodoro đã hoàn thành:</div><div><span id="statPomos">0</span></div>
@@ -162,23 +162,23 @@
       </div>
       <form id="taskForm">
         <input id="taskTitle" type="text" placeholder="Tên nhiệm vụ" required />
-        <input id="taskMins" type="number" min="1" step="1" placeholder="Phút" required />
+        <input id="taskMins" type="number" min="1" step="1" placeholder=" Số phút" required />
         <button type="submit">Thêm</button>
       </form>
       <ul id="taskList"></ul>
     </div>
   </div>
 
-  <a href="index.html"><button>⬅️ Quay lại thư</button></a>
+  <a href="index.html"><button>⬅️ Quay lại trang chính</button></a>
 
   <!-- Nhạc -->
-  <audio id="musicStudy" src="1.mp3" preload="auto" loop></audio>
-  <audio id="musicBreak" src="3.mp3" preload="auto" loop></audio>
+  <audio id="musicStudy" src="4.mp3" preload="auto" loop></audio>
+  <audio id="musicBreak" src="2.mp3" preload="auto" loop></audio>
   <audio id="alertSound" src="alert.mp3" preload="auto" loop></audio>
 
   <!-- Overlay khi hết giờ -->
   <div id="overlay">
-    <h2 id="overlayTitle">🌸 Giỏi lắm, cô gái của anh 💖</h2>
+    <h2 id="overlayTitle">🌸 Giỏi lắm, cô gái bé nhỏ của anh 💖</h2>
     <p id="overlayQuote"></p>
     <button id="nextBtn">Tiếp tục</button>
   </div>
@@ -186,10 +186,10 @@
   <!-- 🎧 Mini lofi playlist -->
   <div id="lofiPanel" aria-label="Playlist lofi">
     <div class="lofi-head">
-      <span>🎧 Lofi list</span>
+      <span>🎧 List nhạc iu thương </span>
       <label class="toggle">
         <input type="checkbox" id="lofiToggle" />
-        <span>Bật</span>
+        <span>Tắt / Bật</span>
       </label>
     </div>
     <ul id="lofiList"></ul>
@@ -239,8 +239,8 @@
 
     /* 🎧 LOFI MINI-PLAYER */
     const LOFI_TRACKS = [
-      "2.mp3","1.mp3","3.mp3","4.mp3",
-      "5.mp3","6.mp3","7.mp3"
+      "2.mp3","1.mp3","6.mp3","4.mp3",
+      "5.mp3","3.mp3","music/IxkUNOlUqqWjHD9b.mp3"
     ];
     const lofiAudio = $("#lofiAudio");
     const lofiToggle = $("#lofiToggle");
@@ -711,5 +711,6 @@
   <!-- removed: <script src="./style/study.js"></script> -->
 </body>
 </html>
+
 
 
