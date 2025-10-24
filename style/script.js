@@ -8,7 +8,7 @@ $(document).ready(function () {
     const audio = $("#sound")[0];
   
     let currentPage = 1;
-    const totalPages = 31;
+    const totalPages = 56;
     let isOpen = false;
     let hasPlayed = false;
   
@@ -100,6 +100,7 @@ $(document).ready(function () {
     }
   });
   
+
 
 
 
