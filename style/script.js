@@ -100,6 +100,13 @@ $(document).ready(function () {
     }
   });
   
+function updateActivePage() {
+  $(".lyric-page.active").fadeOut(200, function () {
+    $(this).removeClass("active");
+    $("#page" + currentPage).fadeIn(300).addClass("active");
+  });
+}
+
 
 
 
