@@ -239,7 +239,7 @@
 
     /* 🎧 LOFI MINI-PLAYER */
     const LOFI_TRACKS = [
-      "1.mp3","2.mp3","3.mp3","4.mp3",
+      "2.mp3","1.mp3","3.mp3","4.mp3",
       "5.mp3","6.mp3","7.mp3"
     ];
     const lofiAudio = $("#lofiAudio");
@@ -331,33 +331,32 @@
     const MODES = { pomo: 25*60, short: 5*60, long: 30*60 };
     const MODE_BG = { pomo: "var(--study-bg)", short: "var(--break-bg)", long: "var(--long-bg)" };
     const quotesStudy = [
-      "Anh đang học cùng em đó, cố lên nha 💪",
+      "Anh đang học cùng em đó, cố lên nha Pthuy💪",
       "Mỗi phút học là một bước gần hơn tới thành công cùng anh! 💖",
-      "Em học chăm ghê, xứng đáng nghỉ một chút để chiến đấu tiếp💕",
-      "Anh tin em làm được, anh và Pthuy cùng tập trung nhé 🌸",
+      "Em yêu chăm ghê, xứng đáng có được anhh hihi💕",
+      "Anh tin em làm được, anh và Pthuy cùng nhau tập trung nhé 🌸",
       "Học hôm nay để mai mình cùng nhau rực rỡ, hạnh phúc nào em iu ✨",
-      "Em giỏi lắm, anh tự hào về em bé Pthuy 🥰",
-      "Từng chút một cũng là tiến bộ, Pthuy nhé 🌱",
+      "Em giỏi lắm, anh tự hào về em lắm Pthuy 🥰",
+      "Từng chút một cũng là tiến bộ, em nhé 🌱",
       "Anh ở đây cùng em, cô gái chăm chỉ của anh 💝"
     ];
     const quotesShortBreak = [
-      "💜 Nghỉ 5 phút nhẹ nhàng nha, em yêu 🌸",
-      "Uống nước đi em, anh pha trà cho em nè hehe ☕💕",
-      "Anh chờ em 5 phút thôi đó, nghỉ tí rồi học tiếp ạa 😆",
+      "💜 Nghỉ 5 phút nhẹ nhàng nha em yêu 🌸",
+      "Uống nước đi em, vừa uống vừa nghĩ đến anhh ...  ☕💕",
+      "Anh chờ em 5 phút thui đó, nghỉ tí rồi mình học tiếp ạa 😆",
       "Hít thở sâu, thả lỏng vai nào cô gái của anh 😌💖",
-      "Giãn cơ nhẹ một chút nha, đừng ngồi lâu quá 🧘‍♀️",
+      "Giãn cơ nhẹ một chút nha, đừng ngồi lâu quá hị 🧘‍♀️",
       "5 phút ngắn ngủi, nghỉ xong quay lại học liền nha 🌷",
-
-      "Nhắm mắt nghỉ tí cho mắt sáng nhé, cô gái xinh 👀✨"
+      "Nhắm mắt nghỉ tí cho mắt sáng nhé, gái xinh 👀✨"
     ];
     const quotesLongBreak = [
       "💙 Nghỉ dài 15-30 phút thoaiii, em xứng đáng lắm! 🎉",
       "Thư giãn sâu đi em, lấy lại năng lượng nào 🌷💕",
       "Anh tự hào về em lắm, cô gái nhỏ kiên trì 💖",
-      "10 phút này là của em, làm gì cũng được nha 🥰",
-      "Đi dạo quanh nhà, vận động chút đi em ơi 🚶‍♀️💫",
-      "Anh nghĩ em nên nằm nghỉ 15 phút này, mệt rồi đó 😴💝",
-      "Nhắn tin cho anh nói chuyện 15 phút này cũng được nha 📞💕",
+      "Thời gian này là của em, em làm gì cũng được nha 🥰",
+      "Đi dạo quanh nhà, vận động chút đi em uii 🚶‍♀️💫",
+      "Anh nghĩ em nên nằm nghỉ xíuuuuu 😴💝",
+      "Nhắn tin cho anh nói chuyện thời gian này cũng được nha 📞💕",
       "Nghe nhạc thư giãn, để đầu óc nghỉ ngơi em bé nhé 🎵✨"
     ];
 
@@ -478,7 +477,7 @@
         // THÊM: mở trang quà khi đủ 4 Pomodoro
         if (isLong) setTimeout(() => openReward(), 600); // chờ chuông 1 nhịp
       } else {
-        overlayTitle.textContent = "⏰ Hết giờ nghỉ rồi em ơi";
+        overlayTitle.textContent = "⏰ Hết giờ nghỉ rồi em bé ơi";
         overlayQuote.textContent = "Cùng quay lại học tiếp nhé, anh tin em! 💪✨";
         pendingNextMode = "pomo";
       }
@@ -651,7 +650,7 @@
           saveActiveTask(); saveTasks(); renderTasks(); updateStatsUI();
         });
         btnAdd.addEventListener("click", () => {
-          const add = parseInt(prompt("Thêm bao nhiêu phút cho nhiệm vụ?", "5") || "0", 10);
+          const add = parseInt(prompt("Thêm bao nhiêu phút cho nhiệm vụ nhỉ ?", "5") || "0", 10);
           if (!isNaN(add) && add > 0){
             t.minsTotal += add;
             t.minsRemaining += add;
@@ -712,4 +711,5 @@
   <!-- removed: <script src="./style/study.js"></script> -->
 </body>
 </html>
+
 
