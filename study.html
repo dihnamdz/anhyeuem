@@ -180,7 +180,11 @@
   <div id="overlay">
     <h2 id="overlayTitle">🌸 Giỏi lắm, cô gái bé nhỏ của anh 💖</h2>
     <p id="overlayQuote"></p>
-    <button id="nextBtn">Tiếp tục</button>
+    <div>
+      <button id="nextBtn">Tiếp tục</button>
+      <!-- Nút nhận quà sẽ hiển thị khi đến thưởng (sau 4 Pomodoro) -->
+      <button id="claimBtn" style="display:none">🎁 Nhận quà</button>
+    </div>
   </div>
 
   <!-- 🎧 Mini lofi playlist -->
@@ -215,6 +219,7 @@
     const overlayTitle = $("#overlayTitle");
     const overlayQuote = $("#overlayQuote");
     const nextBtn = $("#nextBtn");
+    const claimBtn = $("#claimBtn");
     const startBtn = $("#startBtn");
     const resetBtn = $("#resetBtn");
     const skipBtn = $("#skipBtn");
@@ -360,6 +365,14 @@
       "Nghe nhạc thư giãn, để đầu óc nghỉ ngơi em bé nhé 🎵✨"
     ];
 
+    // Reward messages (used when reaching 4 Pomodoro)
+    const rewardMessages = [
+      "🎉 Ô mai gót! Thế là Pthuy đã vượt qua 4 pomodoro. Nhận quà nhỏ tinh thần từ anh nhé 💝",
+      "🌟 4 Pomodoro đã hoàn thành! em quá chăm chỉ và xinh đẹp 🥰",
+      "🎁 Anh chuẩn bị món quà tinh thần nho nhỏ cho em — nhận ngay đi cô gái của anh 💕",
+      "✨ Uwaooooo ,Chắc em bé đã siêu cố gắng, nhận quà này từ anh nhé ạ 💖"
+    ];
+
     // State
     let mode = "pomo";
     let timeLeft = MODES[mode];
@@ -379,6 +392,7 @@
     renderTasks();
     updateHearts();
     quoteEl.textContent = "Nhấn “Bắt đầu học” để cùng anh học nhé 🌸";
+    claimBtn.style.display = "none";
 
     // Events
     modeBtns.pomo.addEventListener("click", () => switchMode("pomo"));
@@ -404,6 +418,15 @@
       overlay.style.display = "none";
       if (pendingNextMode) switchMode(pendingNextMode);
       startTimer();
+    });
+
+    // Claim button opens reward page (only when shown)
+    claimBtn.addEventListener("click", () => {
+      try { alertSound.pause(); alertSound.currentTime = 0; } catch {}
+      // Optionally hide overlay before navigating
+      overlay.style.display = "none";
+      // Navigate to reward page (user will be redirected only after clicking)
+      window.location.href = "monqua.html";
     });
 
     taskForm.addEventListener("submit", (e) => {
@@ -468,14 +491,21 @@
       updateStatsUI();
 
       overlay.style.display = "flex";
+      claimBtn.style.display = "none"; // default hide
       if (endedMode === "pomo"){
         overlayTitle.textContent = "🌸 Giỏi lắm, cô gái của anh 💖";
         const isLong = (!skipped && stats.totalPomos % 4 === 0);
         pendingNextMode = isLong ? "long" : "short";
         overlayQuote.textContent = isLong ? randomOf(quotesLongBreak) : randomOf(quotesShortBreak);
 
-        // THÊM: mở trang quà khi đủ 4 Pomodoro
-        if (isLong) setTimeout(() => openReward(), 600); // chờ chuông 1 nhịp
+        // Nếu là Pomodoro thứ 4 (một chu kỳ), show reward message + nút nhận quà
+        if (isLong) {
+          // Play alert already called above, now show special reward message and button
+          overlayTitle.textContent = "🎉 Chúc mừng — Em đạt 4 Pomodoro! 🎉";
+          overlayQuote.textContent = randomOf(rewardMessages);
+          claimBtn.style.display = "inline-block";
+          // nextBtn vẫn cho phép tiếp tục (sang nghỉ dài), hoặc user có thể nhấn "Nhận quà"
+        }
       } else {
         overlayTitle.textContent = "⏰ Hết giờ nghỉ rồi em bé ơi";
         overlayQuote.textContent = "Cùng quay lại học tiếp nhé, anh tin em! 💪✨";
@@ -711,7 +741,3 @@
   <!-- removed: <script src="./style/study.js"></script> -->
 </body>
 </html>
-
-
-
-
