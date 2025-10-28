@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🎧 Học cùng anh</title>
-  <link rel="stylesheet" href="./style/style.css" />
-  <link rel="stylesheet" href="./style/study.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./study.css" />
   <style>
     :root {
       --study-bg: linear-gradient(180deg, #fff0f5 0%, #ffe0eb 100%);
@@ -113,6 +113,52 @@
     #lofiPanel .lofi-controls button{background:#ff9fbf;border:none;border-radius:8px;padding:6px 10px;color:#fff;cursor:pointer}
     #lofiPanel .lofi-controls button:hover{filter:brightness(1.05)}
     #lofiPanel .toggle{display:flex;align-items:center;gap:6px;font-weight:600;color:#8a4760}
+
+    /* 🎧 Mini playlists */
+    #studyPanel{
+      position:fixed; left:16px; bottom:210px; width:230px; z-index:12;
+      background:rgba(255,255,255,0.9); border:1px solid #ffd6e8; border-radius:12px;
+      box-shadow:0 8px 24px rgba(255,92,138,.18); padding:10px; backdrop-filter: blur(6px);
+    }
+    #studyPanel .lofi-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;color:#d63384;font-weight:700}
+    #studyPanel ul{list-style:none;margin:0;padding:0;max-height:150px;overflow:auto}
+    #studyPanel li{display:flex;gap:6px;align-items:center;padding:6px 8px;border-radius:8px;cursor:pointer;color:#8a4760}
+    #studyPanel li:hover{background:#ffe4ec}
+    #studyPanel li.playing{background:#ffebf3;color:#d63384;font-weight:700}
+    #studyPanel .lofi-controls{display:flex;gap:6px;justify-content:center;margin-top:8px}
+    #studyPanel .lofi-controls button{background:#ff9fbf;border:none;border-radius:8px;padding:6px 10px;color:#fff;cursor:pointer}
+    #studyPanel .lofi-controls button:hover{filter:brightness(1.05)}
+    #studyPanel .toggle{display:flex;align-items:center;gap:6px;font-weight:600;color:#8a4760}
+
+    /* === Music Dock + Toggle button (override layout) === */
+    #btnTogglePlaylist{
+      position: fixed; left: 16px; bottom: 16px; z-index: 13;
+      background:#ff9fbf; color:#fff; border:none; border-radius:999px;
+      padding:8px 14px; box-shadow:0 6px 16px rgba(255,92,138,.18); cursor:pointer;
+    }
+    #btnTogglePlaylist:hover{ filter:brightness(1.05) }
+
+    #musicDock{
+      position: fixed; left: 16px; bottom: 60px; z-index: 12;
+      display: none; /* mặc định ẩn */
+      gap: 12px; align-items: flex-start;
+      display: none; /* đảm bảo ẩn lúc đầu */
+    }
+
+    /* Khi ở trong dock, 2 panel đứng cạnh nhau (không còn fixed) */
+    #musicDock #studyPanel,
+    #musicDock #lofiPanel{
+      position: static; left:auto; bottom:auto;
+      width: 260px;
+    }
+
+    /* Để tương thích rule cũ (đang fixed), ép width lại trong dock */
+    #musicDock #studyPanel .lofi-controls button,
+    #musicDock #lofiPanel .lofi-controls button{ white-space: nowrap }
+
+    @media (max-width: 680px){
+      #musicDock{ flex-direction: column; right: 16px; }
+    }
   </style>
 </head>
 <body>
@@ -171,6 +217,48 @@
 
   <a href="index.html"><button>⬅️ Quay lại trang chính</button></a>
 
+  <!-- Nút bật/tắt danh sách nhạc -->
+  <button id="btnTogglePlaylist">🎵 Danh sách nhạc</button>
+
+  <!-- Dock chứa 2 playlist cạnh nhau -->
+  <div id="musicDock">
+    <!-- 🎧 Mini study instrumental playlist -->
+    <div id="studyPanel" aria-label="Playlist nhạc học bài không lời">
+      <div class="lofi-head">
+        <span>🎧 Nhạc học bài không lời</span>
+        <label class="toggle">
+          <input type="checkbox" id="studyToggle" />
+          <span>Tắt / Bật</span>
+        </label>
+      </div>
+      <ul id="studyList"></ul>
+      <div class="lofi-controls">
+        <button id="studyPrev" title="Bài trước">⏮️</button>
+        <button id="studyPlayPause" title="Phát/Tạm dừng">⏯️</button>
+        <button id="studyNext" title="Bài sau">⏭️</button>
+      </div>
+    </div>
+
+    <!-- 🎧 Mini lofi playlist -->
+    <div id="lofiPanel" aria-label="Playlist lofi">
+      <div class="lofi-head">
+        <span>🎧 List nhạc iu thương </span>
+        <label class="toggle">
+          <input type="checkbox" id="lofiToggle" />
+          <span>Tắt / Bật</span>
+        </label>
+      </div>
+      <ul id="lofiList"></ul>
+      <div class="lofi-controls">
+        <button id="lofiPrev" title="Bài trước">⏮️</button>
+        <button id="lofiPlayPause" title="Phát/Tạm dừng">⏯️</button>
+        <button id="lofiNext" title="Bài sau">⏭️</button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="lofiAudio" preload="metadata"></audio>
+
   <!-- Nhạc -->
   <audio id="musicStudy" src="https://audio.jukehost.co.uk/IxemVj7ywy6KKyY0ej78OvdoO16yusgB" preload="auto" loop></audio>
   <audio id="musicBreak" src="https://audio.jukehost.co.uk/IxemVj7ywy6KKyY0ej78OvdoO16yusgB" preload="auto" loop></audio>
@@ -186,24 +274,6 @@
       <button id="claimBtn" style="display:none">🎁 Nhận quà</button>
     </div>
   </div>
-
-  <!-- 🎧 Mini lofi playlist -->
-  <div id="lofiPanel" aria-label="Playlist lofi">
-    <div class="lofi-head">
-      <span>🎧 List nhạc iu thương </span>
-      <label class="toggle">
-        <input type="checkbox" id="lofiToggle" />
-        <span>Tắt / Bật</span>
-      </label>
-    </div>
-    <ul id="lofiList"></ul>
-    <div class="lofi-controls">
-      <button id="lofiPrev" title="Bài trước">⏮️</button>
-      <button id="lofiPlayPause" title="Phát/Tạm dừng">⏯️</button>
-      <button id="lofiNext" title="Bài sau">⏭️</button>
-    </div>
-  </div>
-  <audio id="lofiAudio" preload="metadata"></audio>
 
   <!-- Inline script replacing external file to avoid conflicts -->
   <script>
@@ -242,95 +312,216 @@
     // THÊM:
     const btnResetStats = $("#btnResetStats");
 
-    /* 🎧 LOFI MINI-PLAYER */
-    const LOFI_TRACKS = [
-      "2.mp3","1.mp3","6.mp3","4.mp3",
-      "https://audio.jukehost.co.uk/IxemVj7ywy6KKyY0ej78OvdoO16yusgB","3.mp3","style/IxkUNOlUqqWjHD9b.mp3"
+    // NEW: dock toggle
+    const musicDock = $("#musicDock");
+    const btnTogglePlaylist = $("#btnTogglePlaylist");
+
+    /* 🎧 TWO PLAYLISTS: STUDY (instrumental) + LOVE (lofi) */
+    const STUDY_TRACKS = [
+      { title: "Nhạc piano không lời", src: "https://audio.jukehost.co.uk/IxemVj7ywy6KKyY0ej78OvdoO16yusgB" }
     ];
+    const LOVE_TRACKS = [
+      { title: "Lofi 1", src: "2.mp3" },
+      { title: "Lofi 2", src: "1.mp3" },
+      { title: "Lofi 3", src: "6.mp3" },
+      { title: "Lofi 4", src: "4.mp3" },
+      { title: "Lofi 5", src: "5.mp3" },
+      { title: "Lofi 6", src: "style/IxkUNOlUqqWjHD9b.mp3" }
+    ];
+
     const lofiAudio = $("#lofiAudio");
+
+    // Study panel elements
+    const studyToggle = $("#studyToggle");
+    const studyList = $("#studyList");
+    const studyPrev = $("#studyPrev");
+    const studyNext = $("#studyNext");
+    const studyPlayPause = $("#studyPlayPause");
+
+    // Love panel elements (giữ nguyên)
     const lofiToggle = $("#lofiToggle");
     const lofiList = $("#lofiList");
     const lofiPrev = $("#lofiPrev");
     const lofiNext = $("#lofiNext");
     const lofiPlayPause = $("#lofiPlayPause");
 
-    let lofiIndex = loadLofiIndex();
+    // State for players
     let lofiEnabled = loadLofiEnabled();
+    let activePlaylist = loadActivePlaylist(); // 'study' | 'love'
+    if (activePlaylist !== 'study' && activePlaylist !== 'love') activePlaylist = 'study';
+
+    let studyIndex = loadIndex("study.index", STUDY_TRACKS.length);
+    let loveIndex  = loadIndex("love.index", LOVE_TRACKS.length);
+
+    // === Dock visibility state ===
+    let dockVisible = loadDockVisible();
+    function loadDockVisible(){ try { return localStorage.getItem("musicDock.visible")==="1"; } catch { return false; } }
+    function saveDockVisible(v){ localStorage.setItem("musicDock.visible", v ? "1" : "0"); }
+    function updateDockUI(){
+      musicDock.style.display = dockVisible ? "flex" : "none";
+      btnTogglePlaylist.textContent = dockVisible ? "Ẩn danh sách nhạc" : "🎵 Danh sách nhạc";
+    }
+    btnTogglePlaylist.addEventListener("click", () => {
+      dockVisible = !dockVisible;
+      saveDockVisible(dockVisible);
+      updateDockUI();
+    });
 
     function loadLofiEnabled(){ try { return localStorage.getItem("lofi.enabled")==="1"; } catch { return false; } }
     function saveLofiEnabled(v){ localStorage.setItem("lofi.enabled", v ? "1" : "0"); }
-    function loadLofiIndex(){
+    function loadActivePlaylist(){ try { return localStorage.getItem("lofi.active") || "study"; } catch { return "study"; } }
+    function saveActivePlaylist(){ localStorage.setItem("lofi.active", activePlaylist); }
+    function loadIndex(key, max){
       try {
-        const n = parseInt(localStorage.getItem("lofi.index")||"0",10);
-        return isNaN(n) ? 0 : Math.min(Math.max(n,0), LOFI_TRACKS.length-1);
+        const n = parseInt(localStorage.getItem(key)||"0",10);
+        return isNaN(n) ? 0 : Math.min(Math.max(n,0), max-1);
       } catch { return 0; }
     }
-    function saveLofiIndex(){ localStorage.setItem("lofi.index", String(lofiIndex)); }
+    function saveIndex(key, val){ localStorage.setItem(key, String(val)); }
 
-    function renderLofiList(){
-      lofiList.innerHTML = LOFI_TRACKS.map((_,i) => `
-        <li data-i="${i}" class="${i===lofiIndex ? 'playing':''}">Bài ${i+1}</li>
+    function currentTrack(){
+      return activePlaylist === "study" ? STUDY_TRACKS[studyIndex] : LOVE_TRACKS[loveIndex];
+    }
+
+    function renderStudyList(){
+      studyList.innerHTML = STUDY_TRACKS.map((t,i) => `
+        <li data-i="${i}" class="${activePlaylist==='study' && i===studyIndex && !lofiAudio.paused && !lofiAudio.ended ? 'playing':''}">
+          ${t.title}
+        </li>
+      `).join("");
+      $$("#studyList li").forEach(li => {
+        li.addEventListener("click", () => {
+          activePlaylist = "study"; saveActivePlaylist();
+          studyIndex = parseInt(li.dataset.i,10); saveIndex("study.index", studyIndex);
+          setLofiEnabled(true);
+          playCurrent(true);
+        });
+      });
+      updatePlayerUI();
+    }
+    function renderLoveList(){
+      lofiList.innerHTML = LOVE_TRACKS.map((t,i) => `
+        <li data-i="${i}" class="${activePlaylist==='love' && i===loveIndex && !lofiAudio.paused && !lofiAudio.ended ? 'playing':''}">
+          ${t.title}
+        </li>
       `).join("");
       $$("#lofiList li").forEach(li => {
         li.addEventListener("click", () => {
-          lofiIndex = parseInt(li.dataset.i,10);
-          saveLofiIndex();
-          if (!lofiEnabled) setLofiEnabled(true);
-          playLofi(true);
+          activePlaylist = "love"; saveActivePlaylist();
+          loveIndex = parseInt(li.dataset.i,10); saveIndex("love.index", loveIndex);
+          setLofiEnabled(true);
+          playCurrent(true);
         });
       });
-      updateLofiUI();
+      updatePlayerUI();
     }
-    function updateLofiUI(){
-      $$("#lofiList li").forEach((li,i) => {
-        li.classList.toggle("playing", i===lofiIndex && !lofiAudio.paused && !lofiAudio.ended);
+
+    function updatePlayerUI(){
+      // highlight playing item
+      $$("#studyList li").forEach((li,i) => {
+        li.classList.toggle("playing", activePlaylist==='study' && i===studyIndex && !lofiAudio.paused && !lofiAudio.ended);
       });
-      lofiPlayPause.textContent = lofiAudio.paused ? "▶️" : "⏸️";
-      lofiToggle.checked = lofiEnabled;
+      $$("#lofiList li").forEach((li,i) => {
+        li.classList.toggle("playing", activePlaylist==='love' && i===loveIndex && !lofiAudio.paused && !lofiAudio.ended);
+      });
+      // buttons + toggles
+      const paused = lofiAudio.paused || lofiAudio.ended;
+      studyPlayPause.textContent = (activePlaylist==='study' && !paused) ? "⏸️" : "▶️";
+      lofiPlayPause.textContent = (activePlaylist==='love' && !paused) ? "⏸️" : "▶️";
+      // only one toggle ON when enabled
+      studyToggle.checked = lofiEnabled && activePlaylist==='study';
+      lofiToggle.checked  = lofiEnabled && activePlaylist==='love';
     }
-    function setLofiEnabled(flag){
-      lofiEnabled = flag; saveLofiEnabled(flag);
-      if (!flag) pauseLofi();
-      else if (running) playLofi(false);
-      updateLofiUI();
-    }
+
     function ensureSrc(){
-      const src = LOFI_TRACKS[lofiIndex];
+      const { src } = currentTrack();
       if (!lofiAudio.src || !lofiAudio.src.endsWith(src)) {
         lofiAudio.src = src;
       }
     }
-    function playLofi(forceChange){
-      if (forceChange) { lofiAudio.src = LOFI_TRACKS[lofiIndex]; }
+    function playCurrent(forceChange){
+      if (forceChange) { lofiAudio.src = currentTrack().src; }
       else ensureSrc();
-      lofiAudio.play().catch(()=>{ /* silently ignore */ });
-      updateLofiUI();
+      lofiAudio.play().catch(()=>{ /* ignore */ });
+      updatePlayerUI();
     }
-    function pauseLofi(){
+    function pausePlayer(){
       try { lofiAudio.pause(); } catch {}
-      updateLofiUI();
+      updatePlayerUI();
     }
-    function nextLofi(){
-      lofiIndex = (lofiIndex + 1) % LOFI_TRACKS.length;
-      saveLofiIndex();
-      playLofi(true);
-    }
-    function prevLofi(){
-      lofiIndex = (lofiIndex - 1 + LOFI_TRACKS.length) % LOFI_TRACKS.length;
-      saveLofiIndex();
-      playLofi(true);
+    function setLofiEnabled(flag){
+      lofiEnabled = flag; saveLofiEnabled(flag);
+      if (!flag) pausePlayer();
+      else playCurrent(false);
+      updatePlayerUI();
     }
 
-    lofiToggle.addEventListener("change", () => setLofiEnabled(lofiToggle.checked));
-    lofiPlayPause.addEventListener("click", () => {
-      if (lofiAudio.paused) { setLofiEnabled(true); playLofi(false); }
-      else pauseLofi();
+    function nextStudy(){
+      studyIndex = (studyIndex + 1) % STUDY_TRACKS.length;
+      saveIndex("study.index", studyIndex);
+      if (activePlaylist==='study') playCurrent(true);
+      renderStudyList();
+    }
+    function prevStudy(){
+      studyIndex = (studyIndex - 1 + STUDY_TRACKS.length) % STUDY_TRACKS.length;
+      saveIndex("study.index", studyIndex);
+      if (activePlaylist==='study') playCurrent(true);
+      renderStudyList();
+    }
+    function nextLove(){
+      loveIndex = (loveIndex + 1) % LOVE_TRACKS.length;
+      saveIndex("love.index", loveIndex);
+      if (activePlaylist==='love') playCurrent(true);
+      renderLoveList();
+    }
+    function prevLove(){
+      loveIndex = (loveIndex - 1 + LOVE_TRACKS.length) % LOVE_TRACKS.length;
+      saveIndex("love.index", loveIndex);
+      if (activePlaylist==='love') playCurrent(true);
+      renderLoveList();
+    }
+
+    // Wire controls
+    studyToggle.addEventListener("change", () => {
+      if (studyToggle.checked){
+        activePlaylist = "study"; saveActivePlaylist();
+        setLofiEnabled(true);
+      } else {
+        setLofiEnabled(false);
+      }
     });
-    lofiPrev.addEventListener("click", prevLofi);
-    lofiNext.addEventListener("click", nextLofi);
-    lofiAudio.addEventListener("ended", nextLofi);
+    lofiToggle.addEventListener("change", () => {
+      if (lofiToggle.checked){
+        activePlaylist = "love"; saveActivePlaylist();
+        setLofiEnabled(true);
+      } else {
+        setLofiEnabled(false);
+      }
+    });
 
-    renderLofiList();
+    studyPlayPause.addEventListener("click", () => {
+      if (activePlaylist!=='study' || lofiAudio.paused) { activePlaylist='study'; saveActivePlaylist(); setLofiEnabled(true); playCurrent(true); }
+      else pausePlayer();
+    });
+    lofiPlayPause.addEventListener("click", () => {
+      if (activePlaylist!=='love' || lofiAudio.paused) { activePlaylist='love'; saveActivePlaylist(); setLofiEnabled(true); playCurrent(true); }
+      else pausePlayer();
+    });
+    studyPrev.addEventListener("click", () => { activePlaylist='study'; saveActivePlaylist(); prevStudy(); });
+    studyNext.addEventListener("click", () => { activePlaylist='study'; saveActivePlaylist(); nextStudy(); });
+    lofiPrev.addEventListener("click", () => { activePlaylist='love'; saveActivePlaylist(); prevLove(); });
+    lofiNext.addEventListener("click", () => { activePlaylist='love'; saveActivePlaylist(); nextLove(); });
+
+    // when a song ends -> loop inside active playlist only
+    lofiAudio.addEventListener("ended", () => {
+      if (activePlaylist==='study') nextStudy();
+      else nextLove();
+    });
+
+    // initial render
+    renderStudyList();
+    renderLoveList();
+    updateDockUI(); // initialize hidden-by-default UI
 
     // Config
     const MODES = { pomo: 25*60, short: 5*60, long: 30*60 };
@@ -462,9 +653,8 @@
     // THÊM: phát chuông báo
     function playAlert(){
       try {
-        // đảm bảo các nhạc khác đã dừng
         studyMusic.pause(); breakMusic.pause();
-        pauseLofi?.();
+        pausePlayer?.();
         alertSound.currentTime = 0;
         alertSound.volume = 1;
         alertSound.play().catch(() => {
@@ -556,8 +746,12 @@
         quoteEl.textContent = randomOf(quotesLongBreak);
       }
       
-      // Nếu lofi bật, tự động phát khi bắt đầu học
-      if (lofiEnabled) playLofi(false);
+      // Mặc định phát playlist "Nhạc học bài không lời" khi bắt đầu
+      activePlaylist = "study"; saveActivePlaylist();
+      studyIndex = 0; saveIndex("study.index", studyIndex);
+      setLofiEnabled(true);
+      playCurrent(true);
+
       refreshAudio();
     }
     function pauseTimer(){
@@ -566,8 +760,7 @@
       clearInterval(timerId);
       timerId = null;
       startBtn.textContent = "▶️ Bắt đầu";
-      // Tạm dừng lofi khi dừng học
-      if (lofiEnabled) pauseLofi();
+      if (lofiEnabled) pausePlayer();
       refreshAudio();
     }
     function resetTimer(){
@@ -631,7 +824,7 @@
     }
     function refreshAudio(){
       try {
-        // Khi bật lofi, không phát nhạc study/break để tránh trùng
+        // Khi bật playlist, tắt nhạc study/break để tránh trùng
         if (lofiEnabled){
           studyMusic.pause(); breakMusic.pause();
           return;
@@ -738,8 +931,6 @@
     function escapeHtml(s){ return s.replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
   })();
   </script>
-  <!-- removed: <script src="./style/study.js"></script> -->
 </body>
 </html>
-
 
