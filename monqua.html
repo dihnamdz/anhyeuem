@@ -40,6 +40,11 @@
     @keyframes sway { 0%{ margin-left:0 } 50%{ margin-left:12px } 100%{ margin-left:0 } }
     /* Nút bật nhạc khi bị chặn autoplay */
     .music-tip{margin-top:8px; font-size:14px; opacity:.8}
+
+    /* Volume control */
+    .volRow{display:flex; gap:10px; align-items:center; justify-content:center; margin-top:12px}
+    .volRow input[type="range"]{width:220px; accent-color:#ff9fbf}
+    .volRow .val{min-width:42px; text-align:right; color:#d63384; font-weight:800}
   </style>
 </head>
 <body>
@@ -66,6 +71,13 @@
         <a class="btn" href="study.html?start=1">⬅️ Quay lại học cùng anh</a>
         <button id="playMusic">🎵 Bật nhạc</button>
       </div>
+      <!-- Volume control -->
+      <div class="volRow">
+        <label for="vol">🔊 Âm lượng</label>
+        <input id="vol" type="range" min="0" max="100" step="1" />
+        <span id="volVal" class="val">80%</span>
+        <button id="muteBtn" type="button">Mute</button>
+      </div>
       <div class="music-tip" id="musicTip" hidden>Nhấn “Bật nhạc” nếu trình duyệt chặn tự phát.</div>
     </div>
   </div>
@@ -91,12 +103,41 @@
     const bgm = document.getElementById('bgm');
     const tip = document.getElementById('musicTip');
     const btn = document.getElementById('playMusic');
+    // volume elements
+    const vol = document.getElementById('vol');
+    const volVal = document.getElementById('volVal');
+    const muteBtn = document.getElementById('muteBtn');
+
+    function loadVol(){
+      try{ const v = parseFloat(localStorage.getItem('gift.volume')); return isNaN(v)?0.8:Math.min(Math.max(v,0),1); }
+      catch{ return 0.8; }
+    }
+    function saveVol(v){ localStorage.setItem('gift.volume', String(v)); }
+    let v = loadVol();
+    // init UI + apply volume
+    if (vol && volVal){
+      vol.value = Math.round(v*100);
+      volVal.textContent = Math.round(v*100) + '%';
+    }
+    bgm.volume = v;
     function tryPlay(){
-      bgm.volume = 0.9;
+      bgm.volume = v;
       bgm.play().then(()=>{ tip.hidden = true; }).catch(()=>{ tip.hidden = false; });
     }
     document.addEventListener('DOMContentLoaded', tryPlay);
     btn.addEventListener('click', tryPlay);
+
+    // volume handlers
+    vol?.addEventListener('input', () => {
+      v = Math.max(0, Math.min(1, (parseInt(vol.value,10)||0)/100));
+      bgm.volume = v; saveVol(v);
+      volVal.textContent = Math.round(v*100) + '%';
+      if (bgm.muted){ bgm.muted = false; muteBtn.textContent = 'Mute'; }
+    });
+    muteBtn?.addEventListener('click', () => {
+      bgm.muted = !bgm.muted;
+      muteBtn.textContent = bgm.muted ? 'Unmute' : 'Mute';
+    });
 
     // THÊM: Đồng hồ nghỉ dài 30 phút
     const longEl = document.getElementById('longTime');
@@ -141,5 +182,4 @@
   </script>
 </body>
 </html>
-
 
