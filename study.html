@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🎧 Học cùng anh</title>
-  <link rel="stylesheet" href="./style/style.css" />
-  <link rel="stylesheet" href="./style/study.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./study.css" />
   <style>
     :root {
       --study-bg: linear-gradient(180deg, #fff0f5 0%, #ffe0eb 100%);
@@ -159,6 +159,36 @@
     @media (max-width: 680px){
       #musicDock{ flex-direction: column; right: 16px; }
     }
+
+    /* Thanh âm lượng trong dock (vertical) */
+    #volumeRow{
+      display:flex; flex-direction: column; align-items:center; justify-content:center; gap:8px;
+      background:rgba(255,255,255,0.9); border:1px solid #ffd6e8; border-radius:12px;
+      padding:8px 10px; box-shadow:0 8px 24px rgba(255,92,138,.08);
+      /* đứng dọc, không chiếm cả hàng */
+      flex: 0 0 auto; width: 56px; height: 220px;
+    }
+    #volumeRow label{font-weight:700;color:#8a4760;white-space:nowrap; font-size:12px}
+    #musicVolume{
+      accent-color:#ff9fbf;
+      /* fallback: xoay ngang thành dọc */
+      transform: rotate(-90deg);
+      width: 170px; height: 28px;
+    }
+    /* WebKit: slider dọc gốc */
+    @supports (-webkit-appearance: slider-vertical) {
+      #musicVolume{
+        transform: none;
+        -webkit-appearance: slider-vertical;
+        appearance: slider-vertical;
+        width: 28px; height: 170px;
+      }
+    }
+    #musicVolumeVal{ min-width:auto; text-align:center; color:#d63384; font-weight:700; font-size:12px }
+    @media (max-width: 680px){
+      #volumeRow{ height: 180px; }
+      #musicVolume{ width: 130px; }
+    }
   </style>
 </head>
 <body>
@@ -255,6 +285,13 @@
         <button id="lofiNext" title="Bài sau">⏭️</button>
       </div>
     </div>
+
+    <!-- Âm lượng chung -->
+    <div id="volumeRow">
+      <label for="musicVolume">🔊 Âm lượng</label>
+      <input id="musicVolume" type="range" min="0" max="100" step="1" />
+      <span id="musicVolumeVal">80%</span>
+    </div>
   </div>
 
   <audio id="lofiAudio" preload="metadata"></audio>
@@ -311,6 +348,10 @@
     const alertSound = $("#alertSound");
     // THÊM:
     const btnResetStats = $("#btnResetStats");
+    const lofiAudio = $("#lofiAudio");
+    // Volume elements
+    const volumeSlider = $("#musicVolume");
+    const volumeLabel  = $("#musicVolumeVal");
 
     // NEW: dock toggle
     const musicDock = $("#musicDock");
@@ -325,25 +366,38 @@
       { title: "Lofi 2", src: "1.mp3" },
       { title: "Lofi 3", src: "6.mp3" },
       { title: "Lofi 4", src: "4.mp3" },
-      { title: "Lofi 5", src: "5.mp3" },
+      { title: "Lofi 5", src: "3.mp3" },
       { title: "Lofi 6", src: "style/IxkUNOlUqqWjHD9b.mp3" }
     ];
 
-    const lofiAudio = $("#lofiAudio");
-
-    // Study panel elements
-    const studyToggle = $("#studyToggle");
-    const studyList = $("#studyList");
-    const studyPrev = $("#studyPrev");
-    const studyNext = $("#studyNext");
-    const studyPlayPause = $("#studyPlayPause");
-
-    // Love panel elements (giữ nguyên)
-    const lofiToggle = $("#lofiToggle");
-    const lofiList = $("#lofiList");
-    const lofiPrev = $("#lofiPrev");
-    const lofiNext = $("#lofiNext");
-    const lofiPlayPause = $("#lofiPlayPause");
+    // Volume state + helpers
+    function loadVolume(){
+      try {
+        const v = parseFloat(localStorage.getItem("music.volume"));
+        return isNaN(v) ? 0.8 : Math.min(Math.max(v,0),1);
+      } catch { return 0.8; }
+    }
+    function saveVolume(v){ localStorage.setItem("music.volume", String(v)); }
+    function applyVolume(v){
+      try {
+        lofiAudio.volume = v;
+        studyMusic.volume = v;
+        breakMusic.volume = v;
+      } catch {}
+    }
+    let musicVol = loadVolume();
+    // init slider UI
+    if (volumeSlider && volumeLabel){
+      volumeSlider.value = Math.round(musicVol * 100);
+      volumeLabel.textContent = `${Math.round(musicVol * 100)}%`;
+      applyVolume(musicVol);
+      volumeSlider.addEventListener("input", () => {
+        musicVol = Math.max(0, Math.min(1, parseInt(volumeSlider.value,10)/100));
+        applyVolume(musicVol);
+        saveVolume(musicVol);
+        volumeLabel.textContent = `${Math.round(musicVol * 100)}%`;
+      });
+    }
 
     // State for players
     let lofiEnabled = loadLofiEnabled();
@@ -522,6 +576,7 @@
     renderStudyList();
     renderLoveList();
     updateDockUI(); // initialize hidden-by-default UI
+    applyVolume(musicVol); // ensure volume applied at start
 
     // Config
     const MODES = { pomo: 25*60, short: 5*60, long: 30*60 };
@@ -933,5 +988,4 @@
   </script>
 </body>
 </html>
-
 
