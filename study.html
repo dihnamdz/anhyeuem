@@ -199,8 +199,9 @@
     <div id="dashboard">
       <div id="modeBar" class="modeBar" role="tablist" aria-label="Chế độ">
         <button id="modePomodoro" class="modeBtn active" role="tab" aria-selected="true">Pomodoro</button>
+        <button id="modeLongPomodoro" class="modeBtn active" role="tab" aria-selected="true">Pomodoro dài(45-10)</button>
         <button id="modeShort" class="modeBtn" role="tab" aria-selected="false">Nghỉ ngắn 5’</button>
-        <button id="modeLong" class="modeBtn" role="tab" aria-selected="false">Nghỉ dài 15’-30’ </button>
+        <button id="modeLong" class="modeBtn" role="tab" aria-selected="false">Nghỉ dài 10’ </button>
       </div>
       <div id="timer">25:00</div>
       <div id="info">🍅 Pomodoro: <span id="pomoCount">0</span></div>
@@ -331,6 +332,7 @@
     const resetBtn = $("#resetBtn");
     const skipBtn = $("#skipBtn");
     const modeBtns = {
+      longpomo:$("#modeLongPomodoro"),
       pomo: $("#modePomodoro"),
       short: $("#modeShort"),
       long: $("#modeLong")
@@ -988,6 +990,7 @@
   </script>
 </body>
 </html>
+
 
 
 
