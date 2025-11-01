@@ -224,8 +224,10 @@
       <h3>📊 Thống kê hôm nay của người iu Đình Nam</h3>
       <div id="stats">
         <div>Tổng phút học:</div><div><span id="statMins">0</span> phút</div>
-        <div>Pomodoro đã hoàn thành:</div><div><span id="statPomos">0</span></div>
+        <div>Pomodoro ngắn 25':</div><div><span id="statPomos">0</span></div>
+        <div>Pomodoro dài 50':</div><div><span id="statPomos50">0</span></div>
         <div>Nhiệm vụ đã xong:</div><div><span id="statTasks">0</span></div>
+        <div>Số giờ tuần này:</div><div><span id="statWeekHours">0</span> giờ</div>
       </div>
       <!-- THÊM: nút reset thống kê -->
       <div style="margin:8px 0;">
@@ -339,7 +341,9 @@
     };
     const statMins = $("#statMins");
     const statPomos = $("#statPomos");
+    const statPomos50 = $("#statPomos50");
     const statTasks = $("#statTasks");
+    const statWeekHours = $("#statWeekHours");
     const taskForm = $("#taskForm");
     const taskTitle = $("#taskTitle");
     const taskMins = $("#taskMins");
@@ -369,7 +373,7 @@
       { title: "Lofi 3", src: "6.mp3" },
       { title: "Lofi 4", src: "4.mp3" },
       { title: "Lofi 5", src: "3.mp3" },
-      { title: "Lofi 6", src: "style/IxkUNOlUqqWjHD9b.mp3" }
+      { title: "style/IxkUNOlUqqWjHD9b.mp3" }
     ];
 
     // Volume state + helpers
@@ -632,6 +636,61 @@
     let tasks = loadTasks();
     let pendingNextMode = null;
 
+    // === Auto-reset daily + weekly tracking ===
+    function vnNow(){
+      // Giờ Việt Nam (UTC+7)
+      const now = new Date();
+      return new Date(now.getTime() + 7*3600*1000);
+    }
+    function vnDateKey(d){
+      const y = d.getUTCFullYear();
+      const m = (d.getUTCMonth()+1).toString().padStart(2,'0');
+      const day = d.getUTCDate().toString().padStart(2,'0');
+      return `${y}-${m}-${day}`;
+    }
+    function vnWeekKey(d){
+      // ISO week: Chủ nhật = 0, Thứ Hai = 1,...
+      // Lấy Chủ nhật đầu tuần (ngày 0 của tuần)
+      const dayOfWeek = d.getUTCDay(); // 0=Chủ nhật, 1=Thứ 2,...
+      const sunday = new Date(d);
+      sunday.setUTCDate(d.getUTCDate() - dayOfWeek);
+      return vnDateKey(sunday);
+    }
+
+    function checkDailyReset(){
+      const today = vnDateKey(vnNow());
+      const lastDate = localStorage.getItem("study.lastDate") || "";
+      if (lastDate !== today){
+        // Sang ngày mới -> reset thống kê hôm nay, giữ lại weekSec
+        const oldWeekSec = stats.weekSec || 0;
+        stats = { totalStudySec: 0, totalPomos: 0, totalPomos50: 0, weekSec: oldWeekSec };
+        saveStats();
+        localStorage.setItem("study.lastDate", today);
+        updateStatsUI();
+      }
+    }
+    function checkWeeklyReset(){
+      const thisWeek = vnWeekKey(vnNow());
+      const lastWeek = localStorage.getItem("study.lastWeek") || "";
+      if (lastWeek !== thisWeek){
+        // Sang tuần mới (qua Chủ nhật 00:00) -> reset weekSec
+        stats.weekSec = 0;
+        saveStats();
+        localStorage.setItem("study.lastWeek", thisWeek);
+        updateStatsUI();
+      }
+    }
+
+    // Kiểm tra ngay khi load
+    checkWeeklyReset();
+    checkDailyReset();
+
+    // Kiểm tra mỗi phút (trong trường hợp tab mở qua đêm/tuần)
+    setInterval(() => {
+      checkWeeklyReset();
+      checkDailyReset();
+    }, 60000);
+
     // Init
     applyModeUI();
     setTimeLeft(MODES.pomo);
@@ -655,8 +714,11 @@
     // THÊM: reset thống kê
     btnResetStats.addEventListener("click", () => {
       if (!confirm("Reset toàn bộ thống kê?")) return;
+      const oldWeekSec = stats.weekSec || 0;
       stats.totalStudySec = 0;
       stats.totalPomos = 0;
+      stats.totalPomos50 = 0;
+      stats.weekSec = oldWeekSec; // giữ lại số giờ tuần
       saveStats();
       updateStatsUI();
       updateHearts();
@@ -732,7 +794,11 @@
       playAlert();
 
       if ((endedMode === "pomo" || endedMode === "pomo50") && !skipped){
-        stats.totalPomos += 1;
+        if (endedMode === "pomo50"){
+          stats.totalPomos50 = (stats.totalPomos50 || 0) + 1;
+        } else {
+          stats.totalPomos = (stats.totalPomos || 0) + 1;
+        }
         saveStats();
         updateHearts();
       }
@@ -754,9 +820,15 @@
         }
       } else if (endedMode === "pomo50"){
         // Pomodoro dài luôn chuyển sang Nghỉ dài
-        overlayTitle.textContent = "🌸 Hoàn thành Pomodoro dài — giỏi lắm em yêu 💖";
+        if (!skipped && (stats.totalPomos50 || 0) % 3 === 0){
+          overlayTitle.textContent = "🎉 Chúc mừng — Em đạt 3 Pomodoro dài 50'! 🎉";
+          overlayQuote.textContent = randomOf(rewardMessages);
+          claimBtn.style.display = "inline-block";
+        } else {
+          overlayTitle.textContent = "🌸 Hoàn thành Pomodoro dài — giỏi lắm em yêu 💖";
+          overlayQuote.textContent = randomOf(quotesLongBreak);
+        }
         pendingNextMode = "long";
-        overlayQuote.textContent = randomOf(quotesLongBreak);
       } else if (endedMode === "short"){
         // Nghỉ ngắn -> về Pomodoro thường
         overlayTitle.textContent = "⏰ Hết giờ nghỉ rồi em bé ơi";
@@ -843,6 +915,7 @@
 
       if (mode === "pomo"){
         stats.totalStudySec += delta;
+        stats.weekSec = (stats.weekSec || 0) + delta;
         if (activeTaskId){
           const t = tasks.find(x => x.id === activeTaskId);
           if (t && !t.done){
@@ -880,8 +953,10 @@
     function updateStatsUI(){
       pomoCountEl.textContent = stats.totalPomos;
       statMins.textContent = Math.floor(stats.totalStudySec / 60);
-      statPomos.textContent = stats.totalPomos;
+      statPomos.textContent = stats.totalPomos || 0;
+      statPomos50.textContent = stats.totalPomos50 || 0;
       statTasks.textContent = tasks.filter(t => t.done).length;
+      statWeekHours.textContent = ((stats.weekSec || 0) / 3600).toFixed(1);
     }
     function updateHearts(){
       const cycle = stats.totalPomos % 4;
@@ -969,8 +1044,8 @@
 
     // Storage helpers
     function loadStats(){
-      try { return JSON.parse(localStorage.getItem("study.stats")) || { totalStudySec: 0, totalPomos: 0 }; }
-      catch { return { totalStudySec: 0, totalPomos: 0 }; }
+      try { return JSON.parse(localStorage.getItem("study.stats")) || { totalStudySec: 0, totalPomos: 0, totalPomos50: 0, weekSec: 0 }; }
+      catch { return { totalStudySec: 0, totalPomos: 0, totalPomos50: 0, weekSec: 0 }; }
     }
     function saveStats(){
       localStorage.setItem("study.stats", JSON.stringify(stats));
