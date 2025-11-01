@@ -757,10 +757,16 @@
         overlayTitle.textContent = "🌸 Hoàn thành Pomodoro dài — giỏi lắm em yêu 💖";
         pendingNextMode = "long";
         overlayQuote.textContent = randomOf(quotesLongBreak);
-      } else {
+      } else if (endedMode === "short"){
+        // Nghỉ ngắn -> về Pomodoro thường
         overlayTitle.textContent = "⏰ Hết giờ nghỉ rồi em bé ơi";
         overlayQuote.textContent = "Cùng quay lại học tiếp nhé, anh tin em! 💪✨";
         pendingNextMode = "pomo";
+      } else {
+        // Nghỉ dài -> chuyển sang Pomodoro dài 50'
+        overlayTitle.textContent = "⏰ Hết giờ nghỉ dài — sẵn sàng học dài nhé em 💪";
+        overlayQuote.textContent = "Bây giờ mình học 50 phút liền nào, anh tin em! 🌸✨";
+        pendingNextMode = "pomo50";
       }
       setTimeLeft(MODES[pendingNextMode]);
       applyModeUI(pendingNextMode);
@@ -994,4 +1000,3 @@
   </script>
 </body>
 </html>
-
