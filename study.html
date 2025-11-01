@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🎧 Học cùng anh</title>
-  <link rel="stylesheet" href="./style/style.css" />
-  <link rel="stylesheet" href="./style/study.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./study.css" />
   <style>
     :root {
       --study-bg: linear-gradient(180deg, #fff0f5 0%, #ffe0eb 100%);
@@ -200,8 +200,7 @@
       <div id="modeBar" class="modeBar" role="tablist" aria-label="Chế độ">
         <button id="modePomodoro" class="modeBtn active" role="tab" aria-selected="true">Pomodoro</button>
         <button id="modeShort" class="modeBtn" role="tab" aria-selected="false">Nghỉ ngắn 5’</button>
-        <button id="modeLongPomodoro" class="modeBtn active" role="tab" aria-selected="true">Pomodoro dài(45-10)</button>
-        <button id="modeLong" class="modeBtn" role="tab" aria-selected="false">Nghỉ dài 10’ </button>
+        <button id="modeLong" class="modeBtn" role="tab" aria-selected="false">Nghỉ dài 15’-30’ </button>
       </div>
       <div id="timer">25:00</div>
       <div id="info">🍅 Pomodoro: <span id="pomoCount">0</span></div>
@@ -334,7 +333,6 @@
     const modeBtns = {
       pomo: $("#modePomodoro"),
       short: $("#modeShort"),
-      longpomo:$("#modeLongPomodoro"),
       long: $("#modeLong")
     };
     const statMins = $("#statMins");
@@ -581,8 +579,8 @@
     applyVolume(musicVol); // ensure volume applied at start
 
     // Config
-     const MODES = { pomo: 25*60, longpomo: 50*60, short: 5*60, long: 10*60 };
-     const MODE_BG = { pomo: "var(--study-bg)", longpomo: "var(--study-bg)", short: "var(--break-bg)", long: "var(--long-bg)" };
+    const MODES = { pomo: 25*60, short: 5*60, long: 30*60 };
+    const MODE_BG = { pomo: "var(--study-bg)", short: "var(--break-bg)", long: "var(--long-bg)" };
     const quotesStudy = [
       "Anh đang học cùng em đó, cố lên nha Pthuy💪",
       "Mỗi phút học là một bước gần hơn tới thành công cùng anh! 💖",
@@ -645,7 +643,6 @@
     // Events
     modeBtns.pomo.addEventListener("click", () => switchMode("pomo"));
     modeBtns.short.addEventListener("click", () => switchMode("short"));
-    modeBtns.longpomo.addEventListener("click", () => switchMode("longpomo"));
     modeBtns.long.addEventListener("click", () => switchMode("long"));
 
     startBtn.addEventListener("click", toggleStart);
@@ -731,7 +728,7 @@
       // phát chuông
       playAlert();
 
-       if ((endedMode === "pomo" || endedMode === "longpomo") && !skipped){
+      if (endedMode === "pomo" && !skipped){
         stats.totalPomos += 1;
         saveStats();
         updateHearts();
@@ -754,11 +751,6 @@
           claimBtn.style.display = "inline-block";
           // nextBtn vẫn cho phép tiếp tục (sang nghỉ dài), hoặc user có thể nhấn "Nhận quà"
         }
-        } else if (endedMode === "longpomo"){
-     // Pomodoro dài luôn chuyển sang Nghỉ dài
-     overlayTitle.textContent = "🌸 Đã Hoàn thành Pomodoro dài — em bé giỏi lám ạ 💖";
-     pendingNextMode = "long";
-     overlayQuote.textContent = randomOf(quotesLongBreak);
       } else {
         overlayTitle.textContent = "⏰ Hết giờ nghỉ rồi em bé ơi";
         overlayQuote.textContent = "Cùng quay lại học tiếp nhé, anh tin em! 💪✨";
@@ -782,7 +774,7 @@
       updateTimerUI();
       refreshAudio();
       // Update quote based on mode
-      if (m === "pomo" || m === "longpomo") {
+      if (m === "pomo") {
         quoteEl.textContent = randomOf(quotesStudy);
       } else if (m === "short") {
         quoteEl.textContent = randomOf(quotesShortBreak);
@@ -801,7 +793,7 @@
       startBtn.textContent = "⏸️ Tạm dừng";
       
       // Hiện câu động viên khi bắt đầu
-       if (mode === "pomo" || mode === "longpomo") {
+      if (mode === "pomo") {
         quoteEl.textContent = randomOf(quotesStudy);
       } else if (mode === "short") {
         quoteEl.textContent = randomOf(quotesShortBreak);
@@ -894,7 +886,7 @@
         }
         studyMusic.pause(); breakMusic.pause();
         if (running){
-          if (mode === "pomo" || mode === "longpomo") studyMusic.play().catch(()=>{});
+          if (mode === "pomo") studyMusic.play().catch(()=>{});
           else breakMusic.play().catch(()=>{});
         }
       } catch(e){}
@@ -996,11 +988,4 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
 
