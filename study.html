@@ -332,9 +332,9 @@
     const resetBtn = $("#resetBtn");
     const skipBtn = $("#skipBtn");
     const modeBtns = {
-      longpomo:$("#modeLongPomodoro"),
       pomo: $("#modePomodoro"),
       short: $("#modeShort"),
+      longpomo:$("#modeLongPomodoro"),
       long: $("#modeLong")
     };
     const statMins = $("#statMins");
@@ -581,8 +581,8 @@
     applyVolume(musicVol); // ensure volume applied at start
 
     // Config
-    const MODES = { pomo: 25*60, short: 5*60, long: 30*60 };
-    const MODE_BG = { pomo: "var(--study-bg)", short: "var(--break-bg)", long: "var(--long-bg)" };
+     const MODES = { pomo: 25*60, longpomo: 50*60, short: 5*60, long: 10*60 };
+     const MODE_BG = { pomo: "var(--study-bg)", longpomo: "var(--study-bg)", short: "var(--break-bg)", long: "var(--long-bg)" };
     const quotesStudy = [
       "Anh đang học cùng em đó, cố lên nha Pthuy💪",
       "Mỗi phút học là một bước gần hơn tới thành công cùng anh! 💖",
@@ -645,6 +645,7 @@
     // Events
     modeBtns.pomo.addEventListener("click", () => switchMode("pomo"));
     modeBtns.short.addEventListener("click", () => switchMode("short"));
+    modeBtns.longpomo.addEventListener("click", () => switchMode("longpomo"));
     modeBtns.long.addEventListener("click", () => switchMode("long"));
 
     startBtn.addEventListener("click", toggleStart);
@@ -730,7 +731,7 @@
       // phát chuông
       playAlert();
 
-      if (endedMode === "pomo" && !skipped){
+       if ((endedMode === "pomo" || endedMode === "longpomo") && !skipped){
         stats.totalPomos += 1;
         saveStats();
         updateHearts();
@@ -753,6 +754,11 @@
           claimBtn.style.display = "inline-block";
           // nextBtn vẫn cho phép tiếp tục (sang nghỉ dài), hoặc user có thể nhấn "Nhận quà"
         }
+        } else if (endedMode === "longpomo"){
+     // Pomodoro dài luôn chuyển sang Nghỉ dài
+     overlayTitle.textContent = "🌸 Đã Hoàn thành Pomodoro dài — em bé giỏi lám ạ 💖";
+     pendingNextMode = "long";
+     overlayQuote.textContent = randomOf(quotesLongBreak);
       } else {
         overlayTitle.textContent = "⏰ Hết giờ nghỉ rồi em bé ơi";
         overlayQuote.textContent = "Cùng quay lại học tiếp nhé, anh tin em! 💪✨";
@@ -776,7 +782,7 @@
       updateTimerUI();
       refreshAudio();
       // Update quote based on mode
-      if (m === "pomo") {
+      if (m === "pomo" || m === "longpomo") {
         quoteEl.textContent = randomOf(quotesStudy);
       } else if (m === "short") {
         quoteEl.textContent = randomOf(quotesShortBreak);
@@ -795,7 +801,7 @@
       startBtn.textContent = "⏸️ Tạm dừng";
       
       // Hiện câu động viên khi bắt đầu
-      if (mode === "pomo") {
+       if (mode === "pomo" || mode === "longpomo") {
         quoteEl.textContent = randomOf(quotesStudy);
       } else if (mode === "short") {
         quoteEl.textContent = randomOf(quotesShortBreak);
@@ -888,7 +894,7 @@
         }
         studyMusic.pause(); breakMusic.pause();
         if (running){
-          if (mode === "pomo") studyMusic.play().catch(()=>{});
+          if (mode === "pomo" || mode === "longpomo") studyMusic.play().catch(()=>{});
           else breakMusic.play().catch(()=>{});
         }
       } catch(e){}
@@ -990,6 +996,7 @@
   </script>
 </body>
 </html>
+
 
 
 
