@@ -509,8 +509,8 @@
 
             const video = document.getElementsByClassName('input_video')[0];
             const canvas = document.getElementById('camera-preview');
-            canvas.width = window.innerWidth * 0.25;
-            canvas.height = window.innerHeight * 0.25;
+            canvas.width = window.innerWidth * 0.10;
+            canvas.height = window.innerHeight * 0.15;
             const ctx = canvas.getContext('2d');
             
             const hands = new Hands({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
